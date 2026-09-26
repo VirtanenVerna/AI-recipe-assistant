@@ -1,33 +1,36 @@
-# Project name
+# AI recipe assistant
 
 Starter template for the **Development of AI Applications** course final group project.
 
 ## Team members
 
-- Member 1 Name (email@example.com)
-- Member 2 Name (email@example.com)
-- Member 3 Name (email@example.com)
+- Member 1 Heidi Johansson heidi.johansson@student.hamk.fi
+- Member 2 Verna Virtanen verna.virtanen@student.hamk.fi
+
 
 ## Problem
+Mitä tänään syötäisiin?
 
 ### Intended users
-Who are the primary target users of this application?
+Sovellus on tarkoitettu ihmisille, jotka haluavat löytää helppoja reseptejä jo kotoa löytyville raaka-aineille.
 
 ### Problem statement
-What specific problem does this application solve for those users?
+Kotoa usein löytyy kaapeista raaka-aineita, mutta ruokaideat loppuvat kesken. Sopivan reseptin etsiminen vie aikaa ja saattavat vaatia uusia raaka-aineita. Sovelluksen tarkoituksena on helpottaa sopivan ruoan löytämistä ja samalla auttaa hyödyntämään jo olemassa olevia raaka-aineita.
 
 ### Why AI is appropriate
-Why does this problem require AI / LLM capabilities rather than traditional deterministic software?
+Tekoäly soveltuu ongelmaan, koska käyttäjä voi antaa raaka-aineensa ja toiveensa. Kielimalli pystyy tulkitsemaan käyttäjän antamia tietoja ja muodostamaan niiden perusteella erilaisia reseptiehdotuksia. 
 
 ## Solution
+Sovellus on tekoälyä hyödyntävä reseptisovellus. Käyttäjä kertoo sovellukselle mitä raaka-aineita häneltä löytyy ja tarvittaessa antaa esimerkiksi ruokavalioon tai ruoan ominaisuuksiin liittyviä toiveita.
 
-Briefly describe your application, its primary value proposition, and how it addresses the problem statement above.
+Sovellus käyttää kielimallia tietojen käsittelemiseen ja ehdottaa niiden perusteella sopivaa ruokaa. Se antaa käyttäjälle reseptin, tarvittavat raaka-aineet ja valmistusohjeet.
 
 ## Main user workflow
 
-1. **User Input:** The user submits a prompt or query via the Gradio user interface.
-2. **Processing & Guardrails:** The application service layer (`src/services/ai_service.py`) validates and formats the request.
-3. **Model Response:** The model client calls Ollama locally and returns the response back through the service layer to the UI.
+1. **User Input:** Käyttäjä syöttää Gradio-käyttöliittymään käytettävissä olevat raaka-aineet ja mahdolliset ruokatoiveet.
+2. Memory: Sovellus tarkistaa käyttäjästä aikaisemmin tallennetut ruokavalioon ja ruokamieltymyksiin liittyvät tiedot.
+3. **Processing & Guardrails:** Sovellus yhdistää käyttäjän syöttämät raaka-aineet, toiveet ja tallennetut mieltymykset mallille annettavaan pyyntöön.
+4. **Model Response:** Kielimalli muodostaa käyttäjälle sopivan reseptiehdotuksen.
 
 ## Architecture
 
@@ -49,8 +52,8 @@ Ollama (Local LLM Server)
 
 ## Model
 
-- **Model used:** e.g., `llama3.2` (or specified local Ollama model)
-- **Selection rationale:** Why was this specific model chosen for your project (e.g., lightweight, performance, context size)?
+- **Model used:To be determined / local Ollama model
+- **Selection rationale: Malli valitaan projektin kehityksen aikana testaamalla sovellukseen sopivaa paikallisesti toimivaa mallia.
 
 ## Additional AI capability
 
@@ -60,12 +63,12 @@ Select at least one additional capability to implement for your final project:
 - [ ] Tools / External API integration
 - [ ] Model Context Protocol (MCP)
 - [ ] Agentic workflow (Model-selected actions based on observations)
-- [ ] Memory / Persistent state
+- [x] Memory / Persistent state
 - [ ] Multimodal interaction (Text + Images)
 - [ ] Other: ______________________
 
 ### Capability justification
-Explain why the selected capability is useful and necessary for your application's user problem.
+Memory-ominaisuuden avulla sovellus voi muistaa käyttäjän ruokavalioon ja ruokamieltymyksiin liittyviä tietoja. Käyttäjän ei tällöin tarvitse syöttää samoja tietoja jokaisella käyttökerralla uudelleen. Esimerkiksi kasvissyöjänä oleva käyttäjä voi tallentaa ruokavalionsa, jolloin sovellus huomioi sen automaattisesti tulevissa reseptiehdotuksissa. Memory tekee sovelluksesta henkilökohtaisemman ja helpomman käyttää.
 
 ## Setup
 
