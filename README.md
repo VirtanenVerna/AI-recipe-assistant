@@ -6,6 +6,7 @@ Starter template for the **Development of AI Applications** course final group p
 
 - Member 1 Heidi Johansson heidi.johansson@student.hamk.fi
 - Member 2 Verna Virtanen verna.virtanen@student.hamk.fi
+- Member 3 Elli Lemmetti elli.lemmetti@student.hamk.fi
 
 
 ## Problem
