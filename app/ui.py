@@ -12,19 +12,22 @@ def build_ui() -> gr.Blocks:
     with gr.Blocks(title="AI Application Starter") as demo:
         gr.Markdown(
             """
-            # AI Application Starter
+            #  AI Recipe Assistant 🍽️
             
-            Welcome to the AI Application Starter repository.
-            Type a prompt below to interact with your local AI service.
+            Enter the ingredients you have available, and the AI will suggest a recipe for you.
             """
         )
 
         with gr.Row():
             user_input = gr.Textbox(
                 lines=3,
-                placeholder="Type your message here...",
-                label="User Prompt",
-            )
+                placeholder="e.g. potatoes, eggs, onion, cheese",
+                label="Available ingredients",)
+
+            preferences = gr.Textbox(
+                lines=2,
+                placeholder="e.g. vegetarian, vegan, gluten-free, high protein",
+                label="Dietary preferences (optional)",)
 
         submit_btn = gr.Button("Send", variant="primary")
 
@@ -38,12 +41,12 @@ def build_ui() -> gr.Blocks:
         # Connect UI actions exclusively to the service layer function
         submit_btn.click(
             fn=generate_response,
-            inputs=user_input,
+            inputs=[user_input, preferences],
             outputs=output_box,
         )
         user_input.submit(
             fn=generate_response,
-            inputs=user_input,
+            inputs=[user_input, preferences],
             outputs=output_box,
         )
 

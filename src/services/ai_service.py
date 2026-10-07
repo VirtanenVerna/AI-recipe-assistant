@@ -43,7 +43,24 @@ class AIService:
 
             # 3. Call model client
             client = self._get_client()
-            response_text = client.generate(request.message)
+
+            prompt = f"""
+You are an AI recipe assistant.
+
+The user has the following ingredients available:
+{request.message}
+
+Suggest one simple recipe that uses these ingredients.
+You may suggest common basic ingredients such as salt, pepper, oil, and water if needed.
+
+Give the recipe a clear name and list:
+1. Ingredients
+2. Instructions
+"""
+
+            response_text = client.generate(prompt)
+
+
 
             return AIResponse(
                 content=response_text,
@@ -85,7 +102,7 @@ class AIService:
             )
 
 
-def generate_response(user_message: str, service: Optional[AIService] = None) -> str:
+def generate_response(user_message: str, preferences:str="", service: Optional[AIService] = None) -> str:
     """
     Main reusable service entry point used by the UI layer.
     
@@ -93,5 +110,7 @@ def generate_response(user_message: str, service: Optional[AIService] = None) ->
     the generated text response (or a friendly error message).
     """
     active_service = service or AIService()
-    response = active_service.process_message(user_message)
+    response = active_service.process_message(
+        f"{user_message}\nDietary preferences: {preferences or 'None'}"
+    )
     return response.content
