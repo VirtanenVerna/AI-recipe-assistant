@@ -24,7 +24,7 @@ class AIService:
             self.model_client = OllamaModelClient()
         return self.model_client
 
-    def process_message(self, user_message: str) -> AIResponse:
+    def process_message(self, user_message: str, preferences: str = "") -> AIResponse:
         """
         Processes a raw user message string and returns a structured AIResponse.
         Catches technical failures and converts them to friendly user-facing messages.
@@ -39,7 +39,10 @@ class AIService:
 
         try:
             # 2. Schema validation
-            request = UserRequest(message=user_message.strip())
+            request = UserRequest(
+                ingredients=user_message.strip(),
+                dietary_preferences=preferences.strip(),
+            )
 
             # 3. Call model client
             client = self._get_client()
@@ -48,7 +51,10 @@ class AIService:
 You are an AI recipe assistant.
 
 The user has the following ingredients available:
-{request.message}
+{request.ingredients}
+
+Dietary preferences or restrictions:
+{request.dietary_preferences or "None provided"}
 
 Suggest one simple recipe that uses these ingredients.
 You may suggest common basic ingredients such as salt, pepper, oil, and water if needed.
@@ -102,7 +108,11 @@ Give the recipe a clear name and list:
             )
 
 
-def generate_response(user_message: str, preferences:str="", service: Optional[AIService] = None) -> str:
+def generate_response(
+    user_message: str,
+    preferences: str = "",
+    service: Optional[AIService] = None,
+) -> str:
     """
     Main reusable service entry point used by the UI layer.
     
@@ -110,7 +120,5 @@ def generate_response(user_message: str, preferences:str="", service: Optional[A
     the generated text response (or a friendly error message).
     """
     active_service = service or AIService()
-    response = active_service.process_message(
-        f"{user_message}\nDietary preferences: {preferences or 'None'}"
-    )
+    response = active_service.process_message(user_message, preferences)
     return response.content

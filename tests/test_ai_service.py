@@ -2,11 +2,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from src.config import config
-from src.models.model_client import (
-    ModelClientError,
-    OllamaConnectionError,
-    ModelNotFoundError,
-)
+from src.models.model_client import OllamaConnectionError, ModelNotFoundError
 from src.services.ai_service import AIService, generate_response
 
 
@@ -44,7 +40,22 @@ def test_successful_response_generation():
     result_text = generate_response("Hello, AI", service=service)
 
     assert result_text == "Hello! I am an AI assistant."
-    mock_client.generate.assert_called_once_with("Hello, AI")
+    prompt = mock_client.generate.call_args.args[0]
+    assert "Hello, AI" in prompt
+    assert "None provided" in prompt
+
+
+def test_preferences_are_included_in_model_prompt():
+    mock_client = MagicMock()
+    mock_client.generate.return_value = "A vegetarian recipe."
+    service = AIService(model_client=mock_client)
+
+    result = service.process_message("potatoes, onions", "vegetarian")
+
+    assert result.success is True
+    prompt = mock_client.generate.call_args.args[0]
+    assert "potatoes, onions" in prompt
+    assert "vegetarian" in prompt
 
 
 def test_ollama_connection_error_handling():

@@ -2,9 +2,17 @@ from pydantic import BaseModel, Field
 
 
 class UserRequest(BaseModel):
-    """Minimal schema for validating incoming user input."""
+    """Validated input required to generate a recipe suggestion."""
 
-    message: str = Field(..., description="The user's prompt or message.")
+    ingredients: str = Field(
+        ...,
+        min_length=1,
+        description="Ingredients available to the user.",
+    )
+    dietary_preferences: str = Field(
+        default="",
+        description="Optional dietary preferences or restrictions.",
+    )
 
 
 class AIResponse(BaseModel):
