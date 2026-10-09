@@ -1,25 +1,40 @@
-"""
-Optional project capability: Memory & Persistent Conversation State.
+"""Small JSON-backed memory for the local, single-user recipe assistant."""
 
-Implement this module only if this capability is relevant to your application's
-user problem. Remove the file if the capability is not used.
+from __future__ import annotations
 
-Conceptual Overview:
--------------------
-Memory enables an application to retain conversational context across multiple user interactions
-or persist state between user sessions.
+import json
+import os
+from pathlib import Path
 
-Key concepts when implementing memory:
-1. Short-term Memory (Chat History): Maintaining an ordered list of user and assistant
-   messages within the current session and appending them to model requests.
-2. Context Window Management: Truncating, summarizing, or pruning history when it exceeds
-   the model's maximum context length.
-3. Long-term / Persistent Memory: Storing user preferences, session history, or key facts
-   in local files or persistent state stores.
 
-Note:
------
-Keep memory implementations simple and relevant to the user's workflow needs.
-"""
+class MemoryStore:
+    """Persist the user's dietary preferences between application runs."""
 
-# Implement custom conversation memory or state management below if selected.
+    def __init__(self, path: str | Path | None = None) -> None:
+        configured_path = path or os.getenv("MEMORY_FILE", "data/user_memory.json")
+        self.path = Path(configured_path)
+
+    def get_preferences(self) -> str:
+        """Return saved dietary preferences, or an empty string if none exist."""
+
+        try:
+            data = json.loads(self.path.read_text(encoding="utf-8"))
+        except (FileNotFoundError, json.JSONDecodeError, OSError):
+            return ""
+
+        preferences = data.get("dietary_preferences", "")
+        return preferences.strip() if isinstance(preferences, str) else ""
+
+    def save_preferences(self, preferences: str) -> None:
+        """Save non-empty dietary preferences, creating the parent directory."""
+
+        cleaned_preferences = preferences.strip()
+        if not cleaned_preferences:
+            return
+
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        payload = {"dietary_preferences": cleaned_preferences}
+        self.path.write_text(
+            json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )

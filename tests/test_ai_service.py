@@ -2,6 +2,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from src.config import config
+from src.capabilities.memory import MemoryStore
 from src.models.model_client import OllamaConnectionError, ModelNotFoundError
 from src.services.ai_service import AIService, generate_response
 
@@ -55,6 +56,23 @@ def test_preferences_are_included_in_model_prompt():
     assert result.success is True
     prompt = mock_client.generate.call_args.args[0]
     assert "potatoes, onions" in prompt
+    assert "vegetarian" in prompt
+
+
+def test_preferences_are_saved_and_reused(tmp_path):
+    memory = MemoryStore(tmp_path / "memory.json")
+    first_client = MagicMock()
+    first_client.generate.return_value = "A vegetarian recipe."
+    first_service = AIService(model_client=first_client, memory_store=memory)
+
+    first_service.process_message("potatoes", "vegetarian")
+
+    second_client = MagicMock()
+    second_client.generate.return_value = "Another vegetarian recipe."
+    second_service = AIService(model_client=second_client, memory_store=memory)
+    second_service.process_message("lentils")
+
+    prompt = second_client.generate.call_args.args[0]
     assert "vegetarian" in prompt
 
 

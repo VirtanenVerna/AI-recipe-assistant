@@ -5,6 +5,7 @@ from src.models.model_client import (
     OllamaConnectionError,
     ModelNotFoundError,
 )
+from src.capabilities.memory import MemoryStore
 from src.schemas.responses import UserRequest, AIResponse
 
 
@@ -14,9 +15,14 @@ class AIService:
     orchestrating model client requests, and catching exceptions gracefully.
     """
 
-    def __init__(self, model_client: Optional[OllamaModelClient] = None):
+    def __init__(
+        self,
+        model_client: Optional[OllamaModelClient] = None,
+        memory_store: Optional[MemoryStore] = None,
+    ):
         # Allow injecting custom/mock model_client for simple testing
         self.model_client = model_client
+        self.memory_store = memory_store or MemoryStore()
 
     def _get_client(self) -> OllamaModelClient:
         """Returns active model client, initializing default client if none provided."""
@@ -39,9 +45,13 @@ class AIService:
 
         try:
             # 2. Schema validation
+            effective_preferences = preferences.strip() or self.memory_store.get_preferences()
+            if preferences.strip():
+                self.memory_store.save_preferences(preferences)
+
             request = UserRequest(
                 ingredients=user_message.strip(),
-                dietary_preferences=preferences.strip(),
+                dietary_preferences=effective_preferences,
             )
 
             # 3. Call model client

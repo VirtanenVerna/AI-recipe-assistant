@@ -18,6 +18,9 @@ ENV/
 .vscode/
 .idea/
 
+# Local user memory (may contain personal dietary information)
+data/user_memory.json
+
 # Operating system files
 .DS_Store
 Thumbs.db
