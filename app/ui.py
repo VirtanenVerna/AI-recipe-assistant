@@ -31,7 +31,29 @@ body, .gradio-container {
 .pp-subtitle { color: var(--pp-muted); font-size: 1.05rem; margin: 10px 0 0; }
 .pp-badge { margin-left: auto; padding: 8px 13px; border-radius: 999px; background: var(--pp-sage); color: var(--pp-green); font-size: .82rem; font-weight: 700; }
 .pp-card { border: 1px solid rgba(47, 107, 79, .15); border-radius: 22px; background: rgba(255,255,255,.7); padding: 8px; }
-.pp-card textarea, .pp-card input { background: rgba(255,255,255,.78) !important; }
+.pp-field textarea, .pp-field input,
+.pp-field .wrap, .pp-field .container { background: #fffdf7 !important; }
+.pp-field textarea, .pp-field input {
+    color: #17221d !important;
+    -webkit-text-fill-color: #17221d !important;
+    caret-color: #2f6b4f !important;
+    border: 1px solid #aab9ae !important;
+    border-radius: 12px !important;
+    font-size: 1rem !important;
+    line-height: 1.5 !important;
+}
+.pp-field textarea::placeholder, .pp-field input::placeholder {
+    color: #66756c !important;
+    opacity: 1 !important;
+}
+.pp-field textarea:focus, .pp-field input:focus {
+    border-color: #2f6b4f !important;
+    box-shadow: 0 0 0 3px rgba(47, 107, 79, .18) !important;
+}
+.pp-field label, .pp-field .label, .pp-field .info {
+    color: #26382e !important;
+}
+.pp-field .info { font-size: .84rem !important; }
 .pp-tip { color: var(--pp-muted); font-size: .9rem; }
 .pp-footer { color: var(--pp-muted); font-size: .86rem; text-align: center; }
 button.primary { background: var(--pp-green) !important; border-color: var(--pp-green) !important; }
@@ -69,12 +91,14 @@ def build_ui() -> gr.Blocks:
                         placeholder="e.g. potatoes, eggs, onion, cheese",
                         label="What is in your kitchen?",
                         info="Separate ingredients with commas or describe what you have.",
+                        elem_classes="pp-field",
                     )
                     preferences = gr.Textbox(
                         lines=3,
                         placeholder="e.g. vegetarian, lactose-free, no peanuts",
                         label="Dietary preferences (optional)",
                         info="A non-empty value is remembered locally for future requests.",
+                        elem_classes="pp-field",
                     )
                     with gr.Row():
                         submit_btn = gr.Button("Suggest a recipe", variant="primary")
@@ -89,6 +113,7 @@ def build_ui() -> gr.Blocks:
                         label="Your next meal",
                         placeholder="Your recipe will appear here...",
                         interactive=False,
+                        elem_classes="pp-field",
                     )
 
             gr.Examples(
