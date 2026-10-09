@@ -46,7 +46,7 @@ def build_ui() -> gr.Blocks:
             gr.HTML(
                 """
                 <div class="pp-hero">
-                    <img class="pp-logo" src="/file=assets/pantrypilot-mark.png" alt="PantryPilot mark" />
+                    <img class="pp-logo" src="/gradio_api/file=assets/pantrypilot-mark.png" alt="PantryPilot mark" />
                     <div>
                         <div class="pp-kicker">AI kitchen copilot</div>
                         <h1 class="pp-title">PantryPilot</h1>
