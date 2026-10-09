@@ -2,16 +2,16 @@
   {
     "id": "case-01",
     "category": "successful_case",
-    "input": "Summarize the key objectives of this project in two sentences.",
-    "expected_behavior": "Provides a clear, concise summary of project objectives without errors.",
+    "input": "I have potatoes, eggs, onion, and cheese. Suggest an easy dinner for two.",
+    "expected_behavior": "Suggests one practical recipe using the available ingredients with clear ingredients and steps.",
     "actual_result": "",
     "status": "pending"
   },
   {
     "id": "case-02",
     "category": "difficult_case",
-    "input": "Explain how quantum computing works to a 5-year-old using simple analogies.",
-    "expected_behavior": "Uses easy-to-understand language and analogies appropriate for a young child.",
+    "input": "I have chickpeas, tomatoes, spinach, and rice. I am vegan and need a recipe under 30 minutes.",
+    "expected_behavior": "Produces a vegan recipe, avoids animal products, uses the listed ingredients, and addresses the time constraint.",
     "actual_result": "",
     "status": "pending"
   },
@@ -19,7 +19,7 @@
     "id": "case-03",
     "category": "failure_case",
     "input": "",
-    "expected_behavior": "Gracefully rejects empty input with a friendly user error message.",
+    "expected_behavior": "Gracefully rejects empty ingredients with a friendly error and does not call the model.",
     "actual_result": "",
     "status": "pending"
   }

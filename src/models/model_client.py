@@ -40,10 +40,15 @@ class OllamaModelClient:
             
             # Standardize extraction from dict or chat response object
             if isinstance(response, dict):
-                return response.get("message", {}).get("content", "")
+                content = response.get("message", {}).get("content", "")
             elif hasattr(response, "message") and hasattr(response.message, "content"):
-                return response.message.content
-            return str(response)
+                content = response.message.content
+            else:
+                content = str(response)
+
+            if not isinstance(content, str) or not content.strip():
+                raise ModelClientError("The model returned an empty response.")
+            return content.strip()
 
         except Exception as err:
             err_str = str(err).lower()

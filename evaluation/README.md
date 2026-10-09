@@ -4,7 +4,7 @@ Systematic evaluation is essential for assessing whether your AI application rel
 
 ## How to Conduct Evaluation
 
-Students are expected to define and run manual or script-assisted evaluations against representative test cases.
+The evaluation should be run against representative recipe requests, with the local model and model name recorded for reproducibility.
 
 ### Test Case Categories
 
@@ -17,6 +17,15 @@ Your evaluation dataset in [`test_cases.json`](test_cases.json) should cover thr
 ## Evaluation Process
 
 1. **Define Test Cases:** Populate `test_cases.json` with realistic inputs and expected behaviors tailored to your user problem.
-2. **Execute System:** Run each test case through your application interface.
+2. **Execute System:** Run each test case through the application interface or a small scripted harness.
 3. **Log & Review:** Record `actual_result` and assign a `status` (`pass`, `fail`, `partial`).
 4. **Summarize Results:** Synthesize findings in [`evaluation_results.md`](evaluation_results.md).
+
+## Recipe-specific review criteria
+
+For every successful response, check:
+
+- the recipe uses the user's available ingredients where practical;
+- dietary restrictions are respected and not merely repeated;
+- the output contains a recipe name, ingredient list, quantities where possible, and ordered instructions;
+- the answer is understandable and does not invent unsafe claims about allergies or nutrition.

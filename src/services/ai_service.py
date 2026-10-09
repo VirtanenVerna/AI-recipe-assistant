@@ -68,10 +68,13 @@ Dietary preferences or restrictions:
 
 Suggest one simple recipe that uses these ingredients.
 You may suggest common basic ingredients such as salt, pepper, oil, and water if needed.
+Do not claim that a recipe is safe for an allergy unless the user has provided enough information.
 
-Give the recipe a clear name and list:
-1. Ingredients
-2. Instructions
+Give the recipe a clear name and use exactly this structure:
+1. Recipe name
+2. Ingredients with approximate quantities
+3. Instructions as numbered steps
+4. Optional substitutions or serving notes
 """
 
             response_text = client.generate(prompt)

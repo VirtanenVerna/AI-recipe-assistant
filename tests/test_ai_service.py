@@ -3,7 +3,11 @@ import pytest
 
 from src.config import config
 from src.capabilities.memory import MemoryStore
-from src.models.model_client import OllamaConnectionError, ModelNotFoundError
+from src.models.model_client import (
+    ModelClientError,
+    OllamaConnectionError,
+    ModelNotFoundError,
+)
 from src.services.ai_service import AIService, generate_response
 
 
@@ -100,3 +104,14 @@ def test_model_not_found_error_handling():
     assert response.success is False
     assert "configured AI model is unavailable" in response.content
     assert "llama3.2 not found" in response.error_message
+
+
+def test_empty_model_response_is_handled_as_an_error():
+    mock_client = MagicMock()
+    mock_client.generate.side_effect = ModelClientError("The model returned an empty response.")
+    service = AIService(model_client=mock_client)
+
+    response = service.process_message("potatoes")
+
+    assert response.success is False
+    assert "communication error" in response.content
