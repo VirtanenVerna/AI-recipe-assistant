@@ -76,13 +76,19 @@ Memory-ominaisuuden avulla sovellus voi muistaa käyttäjän ruokavalioon ja ruo
 ### 1. Create the Conda environment
 
 ```bash
-conda env create -f environment.yml
+conda create -y -n dev-ai-project --override-channels -c conda-forge python=3.12 pip
 ```
 
 ### 2. Activate the environment
 
 ```bash
 conda activate dev-ai-project
+```
+
+Install the project dependencies inside the activated environment:
+
+```bash
+python -m pip install ollama gradio pydantic python-dotenv pytest
 ```
 
 ### 3. Configure environment variables
