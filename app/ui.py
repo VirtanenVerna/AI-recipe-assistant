@@ -1,6 +1,6 @@
 import gradio as gr
 
-from src.services.ai_service import generate_response
+from src.services.ai_service import clear_saved_preferences, generate_response
 
 
 def build_ui() -> gr.Blocks:
@@ -33,6 +33,7 @@ def build_ui() -> gr.Blocks:
         with gr.Row():
             submit_btn = gr.Button("Suggest a recipe", variant="primary")
             clear_btn = gr.ClearButton([user_input, preferences], value="Clear")
+            clear_memory_btn = gr.Button("Clear saved preferences")
 
         output_box = gr.Textbox(
             lines=12,
@@ -53,6 +54,10 @@ def build_ui() -> gr.Blocks:
         user_input.submit(
             fn=generate_response,
             inputs=[user_input, preferences],
+            outputs=output_box,
+        )
+        clear_memory_btn.click(
+            fn=clear_saved_preferences,
             outputs=output_box,
         )
 

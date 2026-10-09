@@ -7,7 +7,7 @@ from src.models.model_client import (
     ModelNotFoundError,
     OllamaConnectionError,
 )
-from src.services.ai_service import AIService, generate_response
+from src.services.ai_service import AIService, clear_saved_preferences, generate_response
 
 
 def test_config_loading():
@@ -78,6 +78,15 @@ def test_preferences_are_saved_and_reused(tmp_path):
 
     prompt = second_client.generate.call_args.args[0]
     assert "vegetarian" in prompt
+
+
+def test_saved_preferences_can_be_cleared(tmp_path, monkeypatch):
+    memory = MemoryStore(tmp_path / "memory.json")
+    memory.save_preferences("vegetarian")
+    monkeypatch.setenv("MEMORY_FILE", str(memory.path))
+
+    assert clear_saved_preferences() == "Saved dietary preferences cleared."
+    assert memory.get_preferences() == ""
 
 
 def test_ollama_connection_error_handling():

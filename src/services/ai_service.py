@@ -135,3 +135,10 @@ def generate_response(
     active_service = service or AIService()
     response = active_service.process_message(user_message, preferences)
     return response.content
+
+
+def clear_saved_preferences() -> str:
+    """Clear the default local preference memory used by the UI."""
+
+    MemoryStore().clear_preferences()
+    return "Saved dietary preferences cleared."

@@ -38,3 +38,11 @@ class MemoryStore:
             json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
             encoding="utf-8",
         )
+
+    def clear_preferences(self) -> None:
+        """Remove saved dietary preferences from local memory."""
+
+        try:
+            self.path.unlink()
+        except FileNotFoundError:
+            pass
