@@ -19,6 +19,8 @@ The model is configured through `MODEL_NAME` in `.env`; `src/config.py` uses `qw
 
 The listed sizes are model-file sizes from the Ollama library and are not a guarantee of runtime speed. Actual performance depends on available RAM, GPU memory, drivers, and context length.
 
+Qwen 3.5 can expose an internal thinking mode. PantryPilot disables that mode for normal recipe requests: the task benefits more from a fast, clean recipe response than from displaying or waiting for a long reasoning trace. The model remains configurable if a later experiment needs a different thinking policy.
+
 ## Switching models
 
 Pull a model:

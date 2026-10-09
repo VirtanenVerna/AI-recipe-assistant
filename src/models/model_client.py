@@ -36,6 +36,9 @@ class OllamaModelClient:
             response = self._client.chat(
                 model=self.model_name,
                 messages=[{"role": "user", "content": prompt}],
+                # Recipe generation benefits from a direct answer; hidden reasoning
+                # is unnecessary in the UI and can add substantial latency locally.
+                think=False,
             )
             
             # Standardize extraction from dict or chat response object
