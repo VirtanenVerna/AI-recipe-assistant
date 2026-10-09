@@ -53,8 +53,18 @@ Ollama (Local LLM Server)
 
 ## Model
 
-- **Model used:To be determined / local Ollama model
+- **Model used:** `qwen3.5:9b` by default, configurable through `MODEL_NAME`.
 - **Selection rationale: Malli valitaan projektin kehityksen aikana testaamalla sovellukseen sopivaa paikallisesti toimivaa mallia.
+
+### Model upgrade options
+
+The project starts with `qwen3.5:9b`, a stronger local model than the original `llama3.2` baseline while remaining below the 20 GB model-size limit. It is listed by Ollama at approximately 6.6–7.6 GB and supports text/image input. See [`docs/model-selection.md`](docs/model-selection.md) for the comparison with `gemma3:12b` and `mistral-small3.1`.
+
+To switch models, pull it with Ollama, update `MODEL_NAME` in `.env`, and restart the app:
+
+```powershell
+ollama pull qwen3.5:9b
+```
 
 ## Additional AI capability
 

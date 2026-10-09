@@ -23,3 +23,27 @@
 **Why:** The service layer can be tested with a mock model client, model failures can be translated into friendly messages, and the UI cannot accidentally bypass validation or memory.
 
 **Trade-off:** The project has a few more modules than a single-file prototype, but changes remain easier to test and review.
+
+## Decision 4 — Model upgrade to Qwen 3.5 9B
+
+**Decision:** Use `qwen3.5:9b` as the default local model and keep the model configurable through `MODEL_NAME`.
+
+**Why:** It improves instruction following and general reasoning over the original lightweight baseline while staying well below the project's 20 GB model-size limit. Its text/image capability also leaves a clean path for a future ingredient-photo feature.
+
+**Trade-off:** It needs more disk space and memory than `llama3.2`, so the project keeps the smaller model as a fallback option.
+
+## Decision 5 — PantryPilot visual identity
+
+**Decision:** Give the application a distinct product identity with a generated pantry/cooking mark, a warm food-tech palette, and a simple branded interface.
+
+**Why:** A recognizable product surface makes the project easier to demo, explain, and evaluate as an application rather than only as a model wrapper.
+
+**Trade-off:** Branding improves usability and presentation but does not improve model correctness. The generated mark is a visual asset only; all user-visible text remains code-controlled for accessibility and crisp rendering.
+
+## Decision 6 — Local-first privacy posture
+
+**Decision:** Keep recipe requests, model inference, and preference memory on the user's machine by default.
+
+**Why:** Ingredients and dietary restrictions can be personal. Local Ollama avoids requiring a hosted API key and makes the data flow easy to explain.
+
+**Trade-off:** The user is responsible for local hardware, model downloads, backups, and securing the machine.
