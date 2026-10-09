@@ -137,8 +137,14 @@ Refer to [`evaluation/README.md`](evaluation/README.md) for guidelines on defini
 
 ## Known limitations
 
-- Highlight known system limitations, unhandled edge cases, or boundaries of current capabilities.
+- The application is designed for one local user; the memory file is not user-account aware.
+- Recipe quality depends on the selected local model and the user's ingredient description.
+- The assistant does not verify allergies, nutrition values, food safety, or ingredient freshness.
+- An Ollama server and the configured model must be available before generation can work.
 
 ## Future improvements
 
-- List planned feature enhancements, architectural refactorings, or future capabilities.
+- Add an explicit button to clear saved preferences.
+- Add model-backed or rule-based ingredient parsing and allergy-aware validation.
+- Add a database-backed, multi-user memory model if the application becomes a shared service.
+- Record completed evaluation runs and compare model choices using the recipe-specific criteria.

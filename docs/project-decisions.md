@@ -1,29 +1,25 @@
 # Project decisions
 
-Use this decision log to document significant technical and architectural choices made by your team during development.
+## Decision 1 — Local Ollama model
 
-## Decision 1 — Model selection
+**Decision:** Use Ollama through `OllamaModelClient` and configure the model with `MODEL_NAME`.
 
-**Decision:**
+**Why:** The course project can run locally without sending recipe inputs to a hosted API. The client boundary also keeps the rest of the application independent from the Ollama SDK.
 
-**Alternatives considered:**
+**Trade-off:** Users must install Ollama, download a model, and have enough local compute for acceptable response times.
 
-**Why we chose this:**
+## Decision 2 — Persistent dietary-preference memory
 
----
+**Decision:** Store the single local user's dietary preferences in `data/user_memory.json`.
 
-## Decision 2 — Additional AI capability
+**Why:** Preferences are the most useful memory for repeated recipe requests, and a JSON file is transparent and sufficient for a local course demo.
 
-**Decision:**
+**Trade-off:** This is not a multi-user or production persistence solution. The file is excluded from Git because it can contain personal information.
 
-**Why it is needed:**
+## Decision 3 — Layered service architecture
 
-**Alternatives considered:**
+**Decision:** Keep the UI, application service, model client, schema, and memory responsibilities separate.
 
----
+**Why:** The service layer can be tested with a mock model client, model failures can be translated into friendly messages, and the UI cannot accidentally bypass validation or memory.
 
-## Decision 3 — Architecture
-
-**Decision:**
-
-**Why:**
+**Trade-off:** The project has a few more modules than a single-file prototype, but changes remain easier to test and review.

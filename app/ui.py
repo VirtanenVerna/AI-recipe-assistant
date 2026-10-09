@@ -6,7 +6,7 @@ from src.services.ai_service import generate_response
 def build_ui() -> gr.Blocks:
     """Build the recipe assistant interface without bypassing the service layer."""
 
-    with gr.Blocks(title="AI Recipe Assistant", theme=gr.themes.Soft()) as demo:
+    with gr.Blocks(title="AI Recipe Assistant") as demo:
         gr.Markdown(
             """
             # AI Recipe Assistant
