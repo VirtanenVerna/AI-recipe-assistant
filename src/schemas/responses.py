@@ -1,23 +1,39 @@
-from pydantic import BaseModel, Field
+"""Validation at the service boundary, including bounded local-model inputs."""
+
+from pydantic import BaseModel, ConfigDict, Field
+
+MAX_INGREDIENTS_LENGTH = 4000
+MAX_PREFERENCES_LENGTH = 1000
+
+
+class DietaryPreferences(BaseModel):
+    """An explicitly saved, non-empty preference value."""
+
+    model_config = ConfigDict(str_strip_whitespace=True)
+    dietary_preferences: str = Field(
+        min_length=1, max_length=MAX_PREFERENCES_LENGTH, strict=True
+    )
 
 
 class UserRequest(BaseModel):
-    """Validated input required to generate a recipe suggestion."""
+    """Keep saved restrictions separate from wishes for just this meal."""
+
+    model_config = ConfigDict(str_strip_whitespace=True)
 
     ingredients: str = Field(
-        ...,
-        min_length=1,
-        description="Ingredients available to the user.",
+        min_length=1, max_length=MAX_INGREDIENTS_LENGTH, strict=True
     )
     dietary_preferences: str = Field(
-        default="",
-        description="Optional dietary preferences or restrictions.",
+        default="", max_length=MAX_PREFERENCES_LENGTH, strict=True
+    )
+    meal_preferences: str = Field(
+        default="", max_length=MAX_PREFERENCES_LENGTH, strict=True
     )
 
 
 class AIResponse(BaseModel):
-    """Minimal schema for structured response output from the AI service layer."""
+    """Service result; UI displays content, not private diagnostic details."""
 
-    content: str = Field(..., description="The generated response text or user-friendly error message.")
-    success: bool = Field(True, description="Flag indicating if the operation succeeded.")
-    error_message: str | None = Field(None, description="Detailed error description if success is False.")
+    content: str
+    success: bool = True
+    error_message: str | None = None
