@@ -36,7 +36,7 @@ Trade-off: long answers can be rejected instead of shown as complete. The HTTP t
 
 ## 6. Readable presentation in both themes
 
-Keep the PantryPilot mark and warm palette. Define complete light/dark theme tokens, use readable system fonts, make the header wrap on narrow screens, and render recipes as selectable Markdown.
+Use complete light/dark theme tokens, readable system fonts, a responsive header and selectable Markdown recipe output.
 
 Trade-off: browser validation remains necessary when upgrading Gradio; unit tests cannot establish color contrast or responsive layout.
 

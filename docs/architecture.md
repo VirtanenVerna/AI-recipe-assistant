@@ -1,12 +1,12 @@
 # Architecture
 
-PantryPilot is a local, single-user application. UI components never access the model or persistence directly.
+AI Recipe Assistant is a local, single-user application. UI components never access the model or persistence directly.
 
 ## Components
 
 | Component | Responsibility |
 |---|---|
-| [main](../app/main.py) | Launch Gradio, set theme/CSS, allow only the logo file to be served. |
+| [main](../app/main.py) | Launch Gradio with its theme and CSS. |
 | [UI](../app/ui.py) | Accessible light/dark layout, responsive header, form fields and event bindings. |
 | [UI callbacks](../app/handlers.py) | Translate service results into recipe, editor and status outputs. Escape saved text displayed as HTML. |
 | [AIService](../src/services/ai_service.py) | Validate requests; explicit preference operations; read saved restrictions; compose the model input; friendly errors. |
@@ -60,7 +60,7 @@ The SDK is configured with a finite HTTPX timeout, 4096 context tokens, 1024 out
 
 ## Paths, presentation and privacy
 
-The project configuration and default memory location are resolved from source-file paths, independent of the shell's working directory. The logo uses its absolute resolved path in Gradio's file route; only that file is explicitly allowed.
+The project configuration and default memory location are resolved from source-file paths, independent of the shell's working directory.
 
 Recipe output is sanitized Markdown. Status text containing preferences is HTML-escaped. Themes set both Gradio tokens and branded light/dark colors, rather than mixing pale backgrounds with dark-mode text.
 

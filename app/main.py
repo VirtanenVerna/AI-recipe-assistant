@@ -1,4 +1,4 @@
-from app.ui import BRAND_CSS, LOGO_PATH, build_theme, build_ui
+from app.ui import BRAND_CSS, build_theme, build_ui
 
 def main() -> None:
     """Entry point script for launching the application."""
@@ -6,7 +6,6 @@ def main() -> None:
     demo.launch(
         theme=build_theme(),
         css=BRAND_CSS,
-        allowed_paths=[str(LOGO_PATH)],
         share=False,
     )
 

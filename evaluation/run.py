@@ -28,7 +28,7 @@ def main() -> None:
     results = []
     client = OllamaModelClient(model_name=args.model)
     try:
-        with TemporaryDirectory(prefix="pantrypilot-evaluation-") as directory:
+        with TemporaryDirectory(prefix="recipe-assistant-evaluation-") as directory:
             for case in cases:
                 memory = MemoryStore(Path(directory) / f"{case['id']}.json")
                 service = AIService(client, memory)

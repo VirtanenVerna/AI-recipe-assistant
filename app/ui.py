@@ -1,15 +1,10 @@
-"""The PantryPilot layout; callbacks delegate to the application service."""
-
-from pathlib import Path
-from urllib.parse import quote
+"""The AI Recipe Assistant layout; callbacks delegate to the service layer."""
 
 import gradio as gr
 
 from app.handlers import RecipeActions
 from src.services.ai_service import AIService
 
-ASSETS_DIR = Path(__file__).resolve().parent.parent / "assets"
-LOGO_PATH = ASSETS_DIR / "pantrypilot-mark.png"
 EMPTY_RECIPE = "*Your next meal starts with what you already have.*"
 
 BRAND_CSS = """
@@ -40,12 +35,7 @@ BRAND_CSS = """
     background: var(--pp-surface); color: var(--pp-ink);
     box-shadow: 0 12px 32px rgb(0 0 0 / 8%);
 }
-.pp-logo { width: 80px; height: 80px; flex: 0 0 80px; object-fit: contain; }
-.pp-hero-copy { flex: 1 1 260px; min-width: 0; }
-.pp-kicker { color: var(--pp-accent); font-size: .8rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
-.pp-title { margin: 4px 0; color: var(--pp-ink); font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.15; overflow-wrap: anywhere; }
-.pp-subtitle { color: var(--pp-muted); font-size: 1rem; margin: 8px 0 0; }
-.pp-badge { padding: 8px 12px; border-radius: 999px; background: var(--pp-soft); color: var(--pp-accent); font-size: .85rem; font-weight: 700; }
+.pp-title { margin: 0; color: var(--pp-ink); font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.15; overflow-wrap: anywhere; }
 .pp-card { padding: 14px !important; border: 1px solid var(--pp-border) !important; border-radius: 20px; background: var(--pp-surface) !important; min-width: 0; }
 .pp-shell .prose, .pp-shell .prose :where(p, li, strong, em, h1, h2, h3, h4) {
     color: var(--pp-ink);
@@ -72,9 +62,6 @@ BRAND_CSS = """
 .pp-footer { text-align: center; }
 @media (max-width: 600px) {
     .pp-hero { padding: 16px; gap: 12px; }
-    .pp-hero-copy { flex-basis: calc(100% - 80px); }
-    .pp-logo { width: 64px; height: 64px; flex-basis: 64px; }
-    .pp-badge { margin-left: 0; }
     .pp-card { padding: 10px !important; }
 }
 """
@@ -106,19 +93,12 @@ def build_theme() -> gr.themes.Soft:
 
 def build_ui(service: AIService | None = None) -> gr.Blocks:
     actions = RecipeActions(service if service is not None else AIService())
-    logo_url = "gradio_api/file=" + quote(LOGO_PATH.as_posix(), safe="/:")
-    with gr.Blocks(title="PantryPilot", analytics_enabled=False) as demo:
+    with gr.Blocks(title="AI Recipe Assistant", analytics_enabled=False) as demo:
         with gr.Column(elem_classes="pp-shell"):
             gr.HTML(
-                f"""
+                """
                 <div class="pp-hero">
-                    <img class="pp-logo" src="{logo_url}" alt="PantryPilot mark" />
-                    <div class="pp-hero-copy">
-                        <div class="pp-kicker">Your kitchen companion</div>
-                        <h1 class="pp-title">PantryPilot</h1>
-                        <p class="pp-subtitle">Turn what you have into something worth cooking.</p>
-                    </div>
-                    <div class="pp-badge">Cook with what you have</div>
+                    <h1 class="pp-title">AI Recipe Assistant</h1>
                 </div>
                 """
             )
@@ -171,14 +151,14 @@ def build_ui(service: AIService | None = None) -> gr.Blocks:
             )
             gr.Markdown(
                 "Recipe ideas are AI-generated. Check ingredients and cooking instructions; "
-                "PantryPilot does not verify allergy safety, freshness or nutrition.",
+                "The assistant does not verify allergy safety, freshness or nutrition.",
                 elem_classes="pp-tip",
             )
             gr.Markdown("Made for practical home cooking.", elem_classes="pp-footer")
 
             # Share the queue between generation and memory actions, so an earlier
             # save/forget completes before a subsequent recipe reads restrictions.
-            event_options = {"concurrency_id": "pantrypilot", "concurrency_limit": 1}
+            event_options = {"concurrency_id": "recipe-assistant", "concurrency_limit": 1}
             demo.load(
                 actions.load_saved, outputs=[saved_editor, memory_status],
                 api_name="load_preferences", **event_options,

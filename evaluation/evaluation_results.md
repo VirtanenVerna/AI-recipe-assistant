@@ -44,7 +44,7 @@ Browser checks on the updated local app confirmed:
 - temporary meal wishes are separate;
 - a reload after forgetting shows no saved preferences;
 - Gradio analytics is disabled;
-- the logo loads;
+- the interface loads without external image assets;
 - the header stays within a 390 px viewport;
 - sampled helper/footer text contrast is approximately 6.73:1 in light mode and 10.27:1 in dark mode (formerly close to 1:1).
 

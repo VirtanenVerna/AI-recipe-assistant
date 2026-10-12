@@ -2,7 +2,7 @@
 
 ## One-minute explanation
 
-PantryPilot turns available ingredients into a recipe with a local Ollama model. Gradio handles presentation; an application service validates inputs and reads explicitly saved dietary preferences; the model client performs inference. Temporary meal wishes and persistent restrictions are separate.
+AI Recipe Assistant turns available ingredients into a recipe with a local Ollama model. Gradio handles presentation; an application service validates inputs and reads explicitly saved dietary preferences; the model client performs inference. Temporary meal wishes and persistent restrictions are separate.
 
 ## Demo sequence
 

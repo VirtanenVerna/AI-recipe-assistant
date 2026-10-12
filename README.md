@@ -1,4 +1,4 @@
-# PantryPilot — AI recipe assistant
+# AI Recipe Assistant
 
 Development of AI Applications -kurssin ryhmäprojekti: resepti-ideoita kotona jo olevista raaka-aineista, paikallisella kielimallilla.
 

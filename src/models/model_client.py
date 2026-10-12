@@ -8,7 +8,7 @@ import ollama
 
 from src.config import config
 
-SYSTEM_PROMPT = """You are PantryPilot, a recipe assistant.
+SYSTEM_PROMPT = """You are an AI recipe assistant.
 Suggest one practical recipe. Saved dietary restrictions take priority over meal
 wishes and available ingredients. Never relax a restriction to use an ingredient.
 Vegetarian excludes meat (including chicken) and fish. Vegan additionally excludes
