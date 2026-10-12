@@ -1,18 +1,13 @@
-import gradio as gr
-from pathlib import Path
-
-from app.ui import BRAND_CSS, build_ui
-
-
-ASSETS_DIR = Path(__file__).resolve().parent.parent / "assets"
+from app.ui import BRAND_CSS, LOGO_PATH, build_theme, build_ui
 
 def main() -> None:
     """Entry point script for launching the application."""
     demo = build_ui()
     demo.launch(
-        theme=gr.themes.Soft(),
+        theme=build_theme(),
         css=BRAND_CSS,
-        allowed_paths=[str(ASSETS_DIR)],
+        allowed_paths=[str(LOGO_PATH)],
+        share=False,
     )
 
 if __name__ == "__main__":
