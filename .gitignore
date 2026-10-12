@@ -20,6 +20,7 @@ ENV/
 
 # Local user memory (may contain personal dietary information)
 data/user_memory.json
+data/.user_memory.json.*.tmp
 
 # Operating system files
 .DS_Store

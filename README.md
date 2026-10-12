@@ -1,6 +1,6 @@
-# AI recipe assistant
+# PantryPilot — AI recipe assistant
 
-Starter template for the **Development of AI Applications** course final group project.
+Development of AI Applications -kurssin ryhmäprojekti: resepti-ideoita kotona jo olevista raaka-aineista, paikallisella kielimallilla.
 
 ## Team members
 
@@ -8,159 +8,139 @@ Starter template for the **Development of AI Applications** course final group p
 - Member 2 Verna Virtanen verna.virtanen@student.hamk.fi
 - Member 3 Elli Lemmetti elli.lemmetti@student.hamk.fi
 
+## Mitä sovellus tekee?
 
-## Problem
-Mitä tänään syötäisiin?
+Käyttäjä antaa raaka-aineet ja tämän aterian toiveet. Sovellus pyytää Ollamalta yhden reseptin, jossa on nimi, määrät ja valmistusohjeet. Erillinen paikallinen muisti säilyttää käyttäjän itse tallentamat ruokavaliot.
 
-### Intended users
-Sovellus on tarkoitettu ihmisille, jotka haluavat löytää helppoja reseptejä jo kotoa löytyville raaka-aineille.
+Tavoitteena on helpottaa arkista ruoan ideointia ja olemassa olevien raaka-aineiden hyödyntämistä. Tämä on yhden käyttäjän paikallinen demo, ei allergia- tai ravitsemuspalvelu.
 
-### Problem statement
-Kotoa usein löytyy kaapeista raaka-aineita, mutta ruokaideat loppuvat kesken. Sopivan reseptin etsiminen vie aikaa ja saattavat vaatia uusia raaka-aineita. Sovelluksen tarkoituksena on helpottaa sopivan ruoan löytämistä ja samalla auttaa hyödyntämään jo olemassa olevia raaka-aineita.
+## Käyttö
 
-### Why AI is appropriate
-Tekoäly soveltuu ongelmaan, koska käyttäjä voi antaa raaka-aineensa ja toiveensa. Kielimalli pystyy tulkitsemaan käyttäjän antamia tietoja ja muodostamaan niiden perusteella erilaisia reseptiehdotuksia. 
+1. **What is in your kitchen?**: raaka-aineet, enintään 4000 merkkiä.
+2. **Wishes for this meal**: esimerkiksi annosmäärä tai aikatoive, enintään 1000 merkkiä. Ei tallennu.
+3. **Saved dietary preferences**: pysyvät ruokavaliot. Muokkaaminen ei vielä muuta muistia; paina **Save preferences**.
+4. **Suggest a recipe** yhdistää aterian tiedot tallennettuihin ruokavalioihin. Mallia ohjeistetaan pitämään tallennettuja rajoitteita ensisijaisina.
+5. **Reset meal fields** tyhjentää aterian kentät, ei muistia.
+6. **Forget preferences** poistaa tallennuksen ja tyhjentää sen editorin. Epäonnistuneesta poistosta kerrotaan, eikä editoria tyhjennetä virheellisesti.
 
-## Solution
-Sovellus on tekoälyä hyödyntävä reseptisovellus. Käyttäjä kertoo sovellukselle mitä raaka-aineita häneltä löytyy ja tarvittaessa antaa esimerkiksi ruokavalioon tai ruoan ominaisuuksiin liittyviä toiveita.
+Tallennettu ruokavalio näkyy lomakkeessa myös uudelleen avattaessa. Reseptipyyntö ei koskaan kirjoita muistia. Jos muistia ei saada luettua, reseptiä ei generoida: rajoitteita ei ohiteta hiljaa.
 
-Sovellus käyttää kielimallia tietojen käsittelemiseen ja ehdottaa niiden perusteella sopivaa ruokaa. Se antaa käyttäjälle reseptin, tarvittavat raaka-aineet ja valmistusohjeet.
+## Käynnistys omalla koneella
 
-## Main user workflow
+Tarvitset Gitin, Python 3.12:n (esimerkiksi Minicondan kautta) sekä [Ollaman](https://ollama.com/download/windows).
+Asennukset ja mallit ovat konekohtaisia, eivät Git-repossa.
 
-1. **User Input:** Käyttäjä syöttää Gradio-käyttöliittymään käytettävissä olevat raaka-aineet ja mahdolliset ruokatoiveet.
-2. Memory: Sovellus tarkistaa käyttäjästä aikaisemmin tallennetut ruokavalioon ja ruokamieltymyksiin liittyvät tiedot.
-3. **Processing & Guardrails:** Sovellus yhdistää käyttäjän syöttämät raaka-aineet, toiveet ja tallennetut mieltymykset mallille annettavaan pyyntöön.
-4. **Model Response:** Kielimalli muodostaa käyttäjälle sopivan reseptiehdotuksen.
+### 1. Nouda kehityshaara
 
-## Architecture
+Olemassa olevassa kloonissa:
 
-Below is the initial starter architecture. As your project evolves with additional capabilities, replace or extend this diagram in [`docs/architecture.md`](docs/architecture.md).
+~~~powershell
+git fetch origin
+git switch development
+git pull --ff-only
+~~~
 
-```text
-User
-  ↓
-Gradio UI (app/ui.py)
-  ↓
-Application / AI Service (src/services/ai_service.py)
-  ↓
-Model Client (src/models/model_client.py)
-  ↓
-Ollama (Local LLM Server)
-```
+Jos haara ei vielä ole paikallinen: `git switch --track origin/development`.
+Tee nämä puhtaassa työpuussa tai tallenna ensin omat keskeneräiset muutoksesi.
 
-> **Core Architectural Rule:** The user interface must NEVER communicate directly with the model client or Ollama. All interactions must pass through the service layer (`ai_service.py`).
+### 2. Python-ympäristö
 
-## Model
+Aja projektin juurikansiossa:
 
-- **Model used:** `qwen3.5:9b` by default, configurable through `MODEL_NAME`.
-- **Selection rationale: Malli valitaan projektin kehityksen aikana testaamalla sovellukseen sopivaa paikallisesti toimivaa mallia.
-
-### Model upgrade options
-
-The project starts with `qwen3.5:9b`, a stronger local model than the original `llama3.2` baseline while remaining below the 20 GB model-size limit. It is listed by Ollama at approximately 6.6–7.6 GB and supports text/image input. See [`docs/model-selection.md`](docs/model-selection.md) for the comparison with `gemma3:12b` and `mistral-small3.1`.
-
-To switch models, pull it with Ollama, update `MODEL_NAME` in `.env`, and restart the app:
-
-```powershell
-ollama pull qwen3.5:9b
-```
-
-## Additional AI capability
-
-Select at least one additional capability to implement for your final project:
-
-- [ ] RAG (Retrieval-Augmented Generation)
-- [ ] Tools / External API integration
-- [ ] Model Context Protocol (MCP)
-- [ ] Agentic workflow (Model-selected actions based on observations)
-- [x] Memory / Persistent state
-- [ ] Multimodal interaction (Text + Images)
-- [ ] Other: ______________________
-
-### Capability justification
-Memory-ominaisuuden avulla sovellus voi muistaa käyttäjän ruokavalioon ja ruokamieltymyksiin liittyviä tietoja. Käyttäjän ei tällöin tarvitse syöttää samoja tietoja jokaisella käyttökerralla uudelleen. Esimerkiksi kasvissyöjänä oleva käyttäjä voi tallentaa ruokavalionsa, jolloin sovellus huomioi sen automaattisesti tulevissa reseptiehdotuksissa. Memory tekee sovelluksesta henkilökohtaisemman ja helpomman käyttää.
-
-## Setup
-
-### 1. Create the Conda environment
-
-```bash
-conda create -y -n dev-ai-project --override-channels -c conda-forge python=3.12 pip
-```
-
-### 2. Activate the environment
-
-```bash
+~~~powershell
+conda env create -f environment.yml
 conda activate dev-ai-project
-```
+~~~
 
-Install the project dependencies inside the activated environment:
+Jos ympäristö on jo olemassa, älä luo sitä uudelleen:
 
-```bash
-python -m pip install ollama gradio pydantic python-dotenv pytest
-```
+~~~powershell
+conda activate dev-ai-project
+python -m pip install -r requirements.txt
+~~~
 
-### 3. Configure environment variables
+[environment.yml](environment.yml) käyttää conda-forgea ilman Anacondan oletuskanavia.
+[requirements.txt](requirements.txt) kiinnittää sovelluksen suorat Python-riippuvuudet testattuihin versioihin. Se ei ole kaikkien transitiivisten riippuvuuksien täydellinen lukitustiedosto.
 
-Copy `.env.example` to create your local `.env` configuration file:
+### 3. Asetukset
 
-On Linux / macOS:
-```bash
-cp .env.example .env
-```
+PowerShellissä kopioi asetuspohja vain, jos paikallista asetustiedostoa ei jo ole:
 
-On Windows (Command Prompt / PowerShell):
-```powershell
-copy .env.example .env
-```
+~~~powershell
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
+~~~
 
-Ensure `.env` contains valid values for `OLLAMA_BASE_URL` and `MODEL_NAME`:
-```env
+Oletukset:
+
+~~~dotenv
 OLLAMA_BASE_URL=http://localhost:11434
 MODEL_NAME=llama3.2
-```
+OLLAMA_TIMEOUT_SECONDS=120
+~~~
 
-### 4. Start Ollama
+[.env.example](.env.example) ja koodin oletus valitsevat molemmat kevyen Llaman.
+Omat asetukset ovat Gitin ulkopuolella. PowerShelliin asetettu ympäristömuuttuja ohittaa tiedoston arvon. Käynnistä sovellus uudelleen asetusten muutoksen jälkeen.
 
-Make sure Ollama is installed and running locally, then pull your configured model:
+### 4. Ollama ja malli
 
-```bash
-ollama run llama3.2
-```
+Käynnistä Ollama Windowsin valikosta ja lataa malli kerran:
 
-### 5. Run the application
+~~~powershell
+ollama pull llama3.2
+ollama list
+~~~
 
-Run the application from the root directory of the project:
+Jos Ollama-palvelu ei ole käynnissä, aja `ollama serve` omassa terminaalissaan. Älä käynnistä toista palvelinta, jos sama portti on jo käytössä.
 
-```bash
+### 5. Sovellus
+
+~~~powershell
 python -m app.main
-```
+~~~
 
-Then open your browser at `http://localhost:7860`.
+Avaa [http://localhost:7860](http://localhost:7860). Lopeta Ctrl+C:llä.
+Päivityksen jälkeen pysäytä vanha sovellus ja käynnistä uudelleen.
 
-### 6. Run automated tests
+### 6. Testit ja arviointi
 
-```bash
-pytest
-```
+~~~powershell
+python -m pytest -q
+python -m evaluation.run --model llama3.2 --output evaluation/my-run.json
+~~~
 
-## Evaluation
+Yksikkötestit eivät tarvitse Ollamaa ja käyttävät eristettyä testimuistia.
+Arviointiajo tarvitsee käynnissä olevan mallin, käyttää vain synteettisiä esimerkkejä ja tallentaa vastaukset sekä kestot uuteen raporttiin. Se ei ylikirjoita olemassa olevaa raporttia.
 
-Describe your evaluation methodology and summarize key results. Starter test cases can be found in [`evaluation/test_cases.json`](evaluation/test_cases.json).
+## Mallin valinta
 
-Refer to [`evaluation/README.md`](evaluation/README.md) for guidelines on defining success, edge cases, and failure scenarios.
+Oletus on `llama3.2`, joka oli kevyempi käyttää kokeillulla koneella.
+`qwen3.5:9b` on valinnainen, raskaampi vaihtoehto. Sen noin 6,6 GB:n latauskoko ei kerro koko ajonaikaista muistintarvetta eikä takaa sopivuutta kannettavalle.
 
-## Known limitations
+Mallin vaihto: lataa haluttu malli, muuta `MODEL_NAME` paikallisessa asetustiedostossa ja käynnistä sovellus uudelleen.
+Katso [mallinvalinta ja sen rajat](docs/model-selection.md).
 
-- The application is designed for one local user; the memory file is not user-account aware.
-- Recipe quality depends on the selected local model and the user's ingredient description.
-- The assistant does not verify allergies, nutrition values, food safety, or ingredient freshness.
-- An Ollama server and the configured model must be available before generation can work.
+## Rakenne ja dokumentaatio
 
-## Future improvements
+~~~text
+Gradio UI -> UI callbacks -> AIService -> OllamaModelClient -> Ollama
+                                |
+                                +----> MemoryStore -> paikallinen JSON
+~~~
 
-- Add an explicit button to clear saved preferences.
-- Add model-backed or rule-based ingredient parsing and allergy-aware validation.
-- Add a database-backed, multi-user memory model if the application becomes a shared service.
-- Record completed evaluation runs and compare model choices using the recipe-specific criteria.
+- [Arkkitehtuuri](docs/architecture.md): komponentit, tietovirrat ja virhetilanteet.
+- [Päätösloki](docs/project-decisions.md): miksi ratkaisut valittiin.
+- [Demo-ohje](docs/demo-guide.md): esittely ja testattavat käyttäjäpolut.
+- [Arviointiohje](evaluation/README.md) ja [todelliset tulokset](evaluation/evaluation_results.md).
+
+Ainoa toteutettu lisäkyvykkyys on persistentti ruokavaliomuisti.
+[capabilities-kansion](src/capabilities) muut moduulit ovat alkuperäisiä kurssipohjia, eivät toimivia RAG-, MCP-, agentti-, työkalu- tai kuvaominaisuuksia.
+
+## Rajoitteet
+
+- Yksi paikallinen käyttäjä ja yksi muistiprofiili, ei käyttäjätilejä.
+- Muisti on salaamatonta JSON:ia. Se ja asetukset on rajattu Gitin ulkopuolelle.
+- Mallin vastaus on vapaata tekstiä: ruokavalion noudattamista, ainesosia, määriä tai ruoan turvallisuutta ei varmenneta ohjelmallisesti.
+- Mallikutsu käyttää enintään 4096 tokenin kontekstia ja 1024 tokenin tulostusta. Katkaistu tuloste palautetaan virheenä.
+- Verkkokutsussa on asetettava aikakatkaisu (oletus 120 s lukuoperaatiolle, yhdistäminen enintään 10 s). Tämä ei ole mallin palvelinpuolinen laskentabudjetti tai sekunnintarkka kokonaiskeston takuu.
+- Inferenssi kulkee oletuksena paikalliseen Ollamaan. Gradio-telemetria on poistettu käytöstä ja UI käyttää järjestelmäfontteja. Mallien/pakettien lataaminen tarvitsee verkkoa; ulkoisen mallipalvelimen valitseminen muuttaa tietovirtaa.
+- Kehitykset jaetaan `development`-haarassa. Niitä ei yhdistetä tai pushata `main`-haaraan automaattisesti.

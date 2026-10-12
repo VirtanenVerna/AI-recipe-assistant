@@ -1,49 +1,53 @@
 # Project decisions
 
-## Decision 1 — Local Ollama model
+## 1. Keep the layered local architecture
 
-**Decision:** Use Ollama through `OllamaModelClient` and configure the model with `MODEL_NAME`.
+UI -> callbacks -> service -> model/storage. The UI never directly calls Ollama or edits profile files. Small boundaries let us test failure behavior without a running model.
 
-**Why:** The course project can run locally without sending recipe inputs to a hosted API. The client boundary also keeps the rest of the application independent from the Ollama SDK.
+Trade-off: more modules than a single-file demo, but presentation changes do not need to rewrite inference or storage.
 
-**Trade-off:** Users must install Ollama, download a model, and have enough local compute for acceptable response times.
+## 2. Explicit preference persistence (supersedes automatic saving)
 
-## Decision 2 — Persistent dietary-preference memory
+The first implementation saved every non-empty preference field during generation. A one-off time wish could therefore erase a dietary restriction; Forget also left the old editor text ready to be saved again.
 
-**Decision:** Store the single local user's dietary preferences in `data/user_memory.json`.
+Decision: separate saved dietary preferences from per-meal wishes. Only Save preferences replaces stored data. Forget clears storage and the editor after successful deletion. Generation only reads memory.
 
-**Why:** Preferences are the most useful memory for repeated recipe requests, and a JSON file is transparent and sufficient for a local course demo.
+Trade-off: saving takes an extra explicit action, but the active profile is visible and temporary wishes cannot silently replace it.
 
-**Trade-off:** This is not a multi-user or production persistence solution. The file is excluded from Git because it can contain personal information.
+## 3. Treat unreadable memory as an error
 
-## Decision 3 — Layered service architecture
+A missing file means a new profile. Corrupt/unreadable data does not mean unrestricted cooking. Read errors stop generation and explain recovery. Save uses a temporary sibling and atomic replacement; deletion errors are reported.
 
-**Decision:** Keep the UI, application service, model client, schema, and memory responsibilities separate.
+Trade-off: a damaged profile requires the user to explicitly repair or clear it. Atomic writes and in-process locking suit a local demo; a shared deployment still needs authenticated profiles and a database.
 
-**Why:** The service layer can be tested with a mock model client, model failures can be translated into friendly messages, and the UI cannot accidentally bypass validation or memory.
+## 4. Restore the lightweight default
 
-**Trade-off:** The project has a few more modules than a single-file prototype, but changes remain easier to test and review.
+Qwen 3.5 9B was downloaded and tried, but the user found it too heavy on this machine. Disk size below 20 GB was not enough to establish practical suitability.
 
-## Decision 4 — Model upgrade to Qwen 3.5 9B
+Decision: use llama3.2 consistently in code defaults, setup examples and the environment template. Keep qwen3.5:9b as an opt-in experiment. Do not claim model superiority from connectivity tests.
 
-**Decision:** Use `qwen3.5:9b` as the default local model and keep the model configurable through `MODEL_NAME`.
+Trade-off: Llama is lighter but can still produce incorrect recipes and ignore restrictions. [Actual evaluation](../evaluation/evaluation_results.md) records limitations rather than claiming all recipes are correct.
 
-**Why:** It improves instruction following and general reasoning over the original lightweight baseline while staying well below the project's 20 GB model-size limit. Its text/image capability also leaves a clean path for a future ingredient-photo feature.
+## 5. Bound model work and reject unusable output
 
-**Trade-off:** It needs more disk space and memory than `llama3.2`, so the project keeps the smaller model as a fallback option.
+Add a configurable finite network timeout and distinct timeout errors. Limit input lengths, context and generated token count. Keep thinking disabled. Detect empty/malformed and output-limit-truncated SDK responses.
 
-## Decision 5 — PantryPilot visual identity
+Trade-off: long answers can be rejected instead of shown as complete. The HTTP timeout is not a strict wall-clock compute limit on the Ollama server.
 
-**Decision:** Give the application a distinct product identity with a generated pantry/cooking mark, a warm food-tech palette, and a simple branded interface.
+## 6. Readable presentation in both themes
 
-**Why:** A recognizable product surface makes the project easier to demo, explain, and evaluate as an application rather than only as a model wrapper.
+Keep the PantryPilot mark and warm palette. Define complete light/dark theme tokens, use readable system fonts, make the header wrap on narrow screens, and render recipes as selectable Markdown.
 
-**Trade-off:** Branding improves usability and presentation but does not improve model correctness. The generated mark is a visual asset only; all user-visible text remains code-controlled for accessibility and crisp rendering.
+Trade-off: browser validation remains necessary when upgrading Gradio; unit tests cannot establish color contrast or responsive layout.
 
-## Decision 6 — Local-first privacy posture
+## 7. Reproducible setup and accurate privacy wording
 
-**Decision:** Keep recipe requests, model inference, and preference memory on the user's machine by default.
+Pin direct dependencies in one requirements file and let the Conda definition refer to it. Disable Gradio analytics and do not load external web fonts. Keep settings and personal memory out of Git.
 
-**Why:** Ingredients and dietary restrictions can be personal. Local Ollama avoids requiring a hosted API key and makes the data flow easy to explain.
+Trade-off: direct pins are not a full transitive lock. Local inference does not imply every installation/download step is offline, and choosing an external model endpoint changes the data flow.
 
-**Trade-off:** The user is responsible for local hardware, model downloads, backups, and securing the machine.
+## 8. Evidence-backed evaluation and branch workflow
+
+Keep synthetic evaluation inputs, raw responses and manually reviewed quality outcomes separate from unit-test results. A successful API call is not a correct recipe.
+
+Share this work through development, leaving main unchanged. No automatic merge, force-push or rewrite of shared history.

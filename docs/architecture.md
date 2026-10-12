@@ -1,77 +1,71 @@
 # Architecture
 
-The application is intentionally small and layered:
+PantryPilot is a local, single-user application. UI components never access the model or persistence directly.
 
-```text
-Gradio UI
-    |
-    v
-generate_response() / AIService
-    |                |
-    v                v
-OllamaModelClient   MemoryStore -> data/user_memory.json
-    |
-    v
-Local Ollama model
-```
+## Components
 
-## What happens when a user clicks “Suggest a recipe”
+| Component | Responsibility |
+|---|---|
+| [main](../app/main.py) | Launch Gradio, set theme/CSS, allow only the logo file to be served. |
+| [UI](../app/ui.py) | Accessible light/dark layout, responsive header, form fields and event bindings. |
+| [UI callbacks](../app/handlers.py) | Translate service results into recipe, editor and status outputs. Escape saved text displayed as HTML. |
+| [AIService](../src/services/ai_service.py) | Validate requests; explicit preference operations; read saved restrictions; compose the model input; friendly errors. |
+| [Schemas](../src/schemas/responses.py) | Trim and bound ingredients (1–4000), saved preferences (1–1000 when saving), and meal wishes (0–1000). |
+| [MemoryStore](../src/capabilities/memory.py) | Project-root-relative JSON path; atomic save; explicit read/write errors. |
+| [Model client](../src/models/model_client.py) | Ollama SDK, system instructions, network timeout, output extraction and typed errors. |
+| [Configuration](../src/config.py) | Shell-over-file settings and lightweight default model. |
 
-```text
-ingredients + optional preferences
-              |
-              v
-        Gradio callback
-              |
-              v
-        generate_response()
-              |
-              v
-          AIService
-          /      \
-         /        \
-  MemoryStore   UserRequest schema
-       |              |
-       +------ prompt-+
-              |
-              v
-       OllamaModelClient
-              |
-              v
-        qwen3.5:9b
-              |
-              v
-        AIResponse -> UI
-```
+## Three distinct flows
 
-## Responsibilities
+~~~mermaid
+flowchart TD
+    UI[Gradio UI] --> Actions[RecipeActions]
+    Actions --> S[AIService]
+    S -->|Generate: read only| M[MemoryStore]
+    S -->|Save / Forget only| M
+    M --> J[Local JSON file]
+    S --> V[Validated ingredients + saved restrictions + meal wishes]
+    V --> C[OllamaModelClient]
+    C --> O[Local Ollama / configured model]
+    O --> C
+    C --> S
+    S --> Actions
+    Actions --> Result[Recipe Markdown or preference status]
+~~~
 
-- `app/ui.py` owns the Gradio layout and passes user input to the service layer.
-- `src/services/ai_service.py` validates the request, loads/saves preferences, builds the recipe prompt, and converts technical failures into user-facing responses.
-- `src/models/model_client.py` is the only module that communicates with Ollama.
-- `src/capabilities/memory.py` stores the local user's dietary preferences. The file is ignored by Git because it may contain personal information.
-- `src/schemas/responses.py` defines the validated request and response models.
+1. **Generate:** validate before disk/model access, read saved preferences, add temporary wishes in a separate JSON field, call the model, return text or a friendly error. No persistent writes.
+2. **Save:** validate the editor value, write a temporary sibling file, flush it and atomically replace the original. Confirm only after success.
+3. **Forget:** delete the preference file; only after success clear the visible editor. A failure keeps the draft and saved restrictions intact.
 
-## Request flow
+All UI model/memory events use one shared Gradio concurrency group. This avoids an earlier save/forget being overtaken by a recipe click within the app. Storage has an in-process lock and atomic replace; it is not a transactional multi-user database.
 
-1. The user enters ingredients and optional dietary preferences.
-2. The service trims and validates the ingredients.
-3. Explicit preferences are saved; otherwise the last saved preferences are loaded.
-4. The service builds a structured recipe prompt and sends it through the model client.
-5. The UI receives only the response text, while technical errors stay inside the service boundary.
+## Failure behavior
 
-## Design boundaries
+| Condition | Result |
+|---|---|
+| Missing memory file | No saved preferences; normal generation allowed. |
+| Malformed JSON, wrong schema or unreadable memory | Stop generation with an explicit recovery message. |
+| Save or delete fails | Report failure; do not claim the editor/memory was cleared. |
+| Empty or oversized input | Reject before disk access and inference. |
+| Ollama offline / model missing / timeout | Distinct friendly messages. |
+| Empty, malformed or token-limit-truncated SDK response | Not reported as a successful recipe. |
 
-The UI must not instantiate the Ollama client or call Ollama directly. The current memory implementation is deliberately single-user and local; a multi-user deployment would need an authenticated user identifier and a real persistence layer.
+Repairing a corrupt profile requires an explicit Save or Forget action; generation never replaces it.
 
-## Why the boundaries matter
+## Model boundary
 
-- The UI is presentation code. It can be redesigned without changing model handling.
-- The service layer is the application boundary. It owns validation, prompt construction, preference memory, and friendly failure messages.
-- The model client isolates the Ollama SDK and translates low-level failures into application exceptions.
-- Pydantic schemas make the request and response shape explicit and testable.
-- The local JSON memory is intentionally small. It stores preferences, not full chat transcripts or sensitive profile data.
+The system message establishes recipe instructions and dietary precedence. The user message contains JSON-separated input fields. This reduces ambiguity but is not a deterministic dietary validator. Pydantic validates the input and response envelope, not recipe correctness.
 
-## Runtime configuration
+The SDK is configured with a finite HTTPX timeout, 4096 context tokens, 1024 output tokens, and thinking disabled. An HTTP read timeout bounds a stalled network wait; it is not a guaranteed total runtime or cancellation of server-side inference.
 
-`OLLAMA_BASE_URL` selects the local Ollama endpoint and `MODEL_NAME` selects the installed model. The recommended default is documented in [model-selection.md](model-selection.md). The UI serves the generated logo from `assets/` through Gradio's `allowed_paths` setting; the logo does not participate in the AI request.
+## Paths, presentation and privacy
+
+The project configuration and default memory location are resolved from source-file paths, independent of the shell's working directory. The logo uses its absolute resolved path in Gradio's file route; only that file is explicitly allowed.
+
+Recipe output is sanitized Markdown. Status text containing preferences is HTML-escaped. Themes set both Gradio tokens and branded light/dark colors, rather than mixing pale backgrounds with dark-mode text.
+
+Gradio analytics is disabled and system fonts are used. The default inference endpoint is localhost, but an operator can configure an external endpoint. Personal settings and preference files are not committed. Only synthetic test/evaluation data is shared.
+
+## Verification boundaries
+
+Unit tests isolate memory per test and mock model calls; SDK transport tests check the real request format without a server. UI callback regressions cover forgetting and failed deletion. Browser checks cover both themes and small-screen layout. [Evaluation](../evaluation/README.md) exercises the live model separately.

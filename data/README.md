@@ -1,14 +1,9 @@
-# Data Directory
+# Local data
 
-This directory is designated for project-specific data, reference documents, sample files, or datasets used by your application (for example, documents used for RAG or input samples).
+The default profile is user_memory.json, created only when Save preferences is used. It contains one dietary_preferences string. It is plaintext, single-user data, excluded from Git.
 
-## Data Governance & Commit Guidelines
+An absent file means no saved preferences. An unreadable/invalid file is an error that stops recipe generation. Repair or Forget it explicitly; the application will not discard restrictions silently.
 
-To maintain privacy, security, and repository health, **DO NOT COMMIT**:
+Atomic saves use short-lived .user_memory.json.*.tmp sibling files, also ignored by Git. MEMORY_FILE can select another location; if you choose one inside the repository, make sure it is excluded before committing.
 
-1. **Confidential Data:** Proprietary business information, private company records, or non-public data.
-2. **Personal Data (PII):** Names, phone numbers, email addresses, or personal identity information without explicit consent.
-3. **Large Datasets:** Files larger than 10MB (store large raw datasets externally or use `.gitignore`).
-4. **Credentials & Secrets:** Never store API keys, tokens, or passwords in data files.
-
-Use this directory responsibly for small, sample datasets and public documentation.
+Do not put credentials or personal datasets in the repository. Automated tests and evaluations use isolated temporary profiles, not this directory.

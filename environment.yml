@@ -2,13 +2,10 @@ name: dev-ai-project
 
 channels:
   - conda-forge
+  - nodefaults
 
 dependencies:
   - python=3.12
   - pip
   - pip:
-      - ollama
-      - gradio
-      - pydantic
-      - python-dotenv
-      - pytest
+      - -r requirements.txt

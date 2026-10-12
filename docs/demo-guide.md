@@ -2,24 +2,26 @@
 
 ## One-minute explanation
 
-PantryPilot is a local AI recipe assistant. The user provides ingredients and optional dietary preferences. The Gradio interface sends those fields to an application service. The service validates the input, remembers the local user's preferences, constructs a structured recipe prompt, and asks Ollama to generate the answer. The UI never talks directly to the model.
+PantryPilot turns available ingredients into a recipe with a local Ollama model. Gradio handles presentation; an application service validates inputs and reads explicitly saved dietary preferences; the model client performs inference. Temporary meal wishes and persistent restrictions are separate.
 
 ## Demo sequence
 
-1. Enter `potatoes, eggs, onion, cheese` and request a recipe.
-2. Enter `vegetarian` as the preference and make a second request.
-3. Clear the input fields, leave preferences blank, and show that the preference is reused.
-4. Click **Forget preferences**, then request a recipe with chicken to show that the old vegetarian constraint is gone.
-5. Open the architecture document and explain the UI → service → client → Ollama flow.
+1. Start Ollama and the app; the default model is llama3.2.
+2. Enter potatoes, eggs, onion and cheese. Add “two servings” to Wishes for this meal.
+3. In Saved dietary preferences, enter vegetarian and press Save preferences.
+4. Generate a recipe. Explain that the service reads the saved profile but does not alter it.
+5. Change the one-off wish to under 30 minutes. Show that the displayed saved profile is still vegetarian.
+6. Reload the page: saved preferences are loaded into the editor.
+7. Press Forget preferences. Both the saved state and its editor are cleared; a confirmation appears separately from the recipe.
+8. Generate with an empty ingredients field to demonstrate validation without inference.
+9. Show [architecture](architecture.md) and [evaluation results](../evaluation/evaluation_results.md).
 
-## What to point out
+Use a temporary/demo profile when presenting; do not display somebody's actual dietary data.
 
-- `AIService` is independently testable because the Ollama client can be mocked.
-- `MemoryStore` is injected in tests and ignored by Git in normal local use.
-- Model selection is configuration, not hard-coded into the UI.
-- Errors such as a missing model or unavailable Ollama service become readable messages for the user.
-- The logo and styling are presentation assets; they do not bypass the service-layer boundary.
+## What not to claim
 
-## Honest limitations
-
-The model can still hallucinate quantities or unsafe advice. The application does not certify allergy safety, nutrition, freshness, or cooking temperatures. The persistent memory is single-user and local, not an account system.
+- Unit-test success does not prove recipe quality.
+- Prompted dietary precedence is not a reliable allergen filter.
+- “Under 20 GB on disk” does not prove a model is fast on a laptop.
+- Only memory is implemented as an extra AI capability; the other capability modules are course scaffolding.
+- This is a single-user local demo, not an authenticated shared service.

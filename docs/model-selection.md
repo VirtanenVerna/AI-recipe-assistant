@@ -1,56 +1,48 @@
 # Model selection
 
-## Recommendation
+## Default: llama3.2
 
-The default model for PantryPilot is `qwen3.5:9b`.
+Use llama3.2 for the local course demo. It is the default in code and [.env.example](../.env.example), and matches the setup instructions.
 
-It is a good fit for this project because it is materially stronger than the original `llama3.2` setup while remaining practical on a local computer. The Ollama library lists the 9B variant at roughly 6.6–7.6 GB, with a 256K context window and text/image input support. The model can therefore support future ingredient-photo input without changing the model family.
+The original installation reported about 2.0 GB for llama3.2. Qwen 3.5 9B was also installed (about 6.6 GB), but the user found it too slow/heavy in actual use. These are observed download sizes, not RAM/VRAM requirements or comparative quality benchmarks.
 
-The model is configured through `MODEL_NAME` in `.env`; `src/config.py` uses `qwen3.5:9b` as the safe default when `.env` is missing.
+The earlier recommendation that Qwen was a safe default has been superseded. Practical latency on the user's hardware matters more than staying below a disk-size ceiling.
 
-## Alternatives considered
+## Switch deliberately
 
-| Model | Approx. Ollama size | Strengths | Trade-off |
-|---|---:|---|---|
-| `llama3.2` | 2.0 GB | Fast and lightweight baseline | Weaker instruction following and recipe formatting |
-| `qwen3.5:9b` | 6.6–7.6 GB | Strong general reasoning, multilingual use, vision support | Slower and more memory-hungry than the baseline |
-| `gemma3:12b` | 8.1 GB | Compact multimodal model, broad language support | A little larger; separate family to benchmark |
-| `mistral-small3.1` | 15 GB | Strong text and vision quality, long context | More demanding for everyday laptops |
+~~~powershell
+ollama pull llama3.2
+~~~
 
-The listed sizes are model-file sizes from the Ollama library and are not a guarantee of runtime speed. Actual performance depends on available RAM, GPU memory, drivers, and context length.
+Set `MODEL_NAME=llama3.2` in the project-local environment file and restart the app.
 
-Qwen 3.5 can expose an internal thinking mode. PantryPilot disables that mode for normal recipe requests: the task benefits more from a fast, clean recipe response than from displaying or waiting for a long reasoning trace. The model remains configurable if a later experiment needs a different thinking policy.
+For an optional heavier-model experiment:
 
-## Switching models
-
-Pull a model:
-
-```powershell
+~~~powershell
 ollama pull qwen3.5:9b
-```
+~~~
 
-Set it in `.env`:
+Then set `MODEL_NAME=qwen3.5:9b` and restart. No model is automatically downloaded or selected on failure. A shell-level MODEL_NAME takes precedence over the environment file.
 
-```env
-MODEL_NAME=qwen3.5:9b
-```
+## Runtime settings
 
-Restart the application after changing `.env`. To compare another model without changing code:
+- Thinking is disabled.
+- Context is capped at 4096 tokens; the advertised maximum model context is not requested.
+- Output is capped at 1024 tokens. A response reporting output-limit truncation is rejected.
+- OLLAMA_TIMEOUT_SECONDS defaults to 120; connection timeout is capped at 10 seconds. This bounds network operations, not total server-side compute.
+- A larger download may also require substantially more runtime memory.
 
-```powershell
-ollama pull gemma3:12b
-```
+## Compare with evidence
 
-Then set `MODEL_NAME=gemma3:12b` and run the evaluation cases again.
+~~~powershell
+python -m evaluation.run --model llama3.2 --output evaluation/llama-new-run.json
+python -m evaluation.run --model qwen3.5:9b --output evaluation/qwen-new-run.json
+~~~
 
-## Evaluation focus
+Only run models your hardware can handle. The runner uses synthetic inputs and separate temporary memory. Compare actual restrictions, quantities, clarity and elapsed time, not just whether the endpoint responds.
 
-Model comparisons should score the same inputs for:
+A single pass is not a statistically reliable benchmark. No controlled Qwen-versus-Llama quality comparison has been completed in this repository. See [recorded results](../evaluation/evaluation_results.md).
 
-1. correct use of available ingredients;
-2. compliance with dietary restrictions;
-3. clear quantities and ordered instructions;
-4. useful substitutions and realistic preparation time;
-5. latency and whether the model fits comfortably in local hardware.
+## Reference catalogues
 
-The application should not present a model as allergy-safe or nutritionally verified merely because the model sounds confident.
+[Ollama Llama 3.2](https://ollama.com/library/llama3.2) and [Ollama Qwen 3.5](https://ollama.com/library/qwen3.5) document available tags. Tags and download sizes may change; use local `ollama list` for the installed version.

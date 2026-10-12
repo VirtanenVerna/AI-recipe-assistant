@@ -1,26 +1,38 @@
 [
   {
     "id": "case-01",
-    "category": "successful_case",
-    "input": "I have potatoes, eggs, onion, and cheese. Suggest an easy dinner for two.",
-    "expected_behavior": "Suggests one practical recipe using the available ingredients with clear ingredients and steps.",
-    "actual_result": "",
-    "status": "pending"
+    "category": "typical",
+    "ingredients": "potatoes, eggs, onion, cheese",
+    "meal_preferences": "a simple dinner for two",
+    "saved_preferences": "",
+    "expected_success": true,
+    "expected_behavior": "One practical recipe for two, with quantities, numbered steps, and no unlabelled extra ingredients."
   },
   {
     "id": "case-02",
-    "category": "difficult_case",
-    "input": "I have chickpeas, tomatoes, spinach, and rice. I am vegan and need a recipe under 30 minutes.",
-    "expected_behavior": "Produces a vegan recipe, avoids animal products, uses the listed ingredients, and addresses the time constraint.",
-    "actual_result": "",
-    "status": "pending"
+    "category": "dietary",
+    "ingredients": "chickpeas, tomatoes, spinach, rice",
+    "meal_preferences": "under 30 minutes",
+    "saved_preferences": "vegan",
+    "expected_success": true,
+    "expected_behavior": "A vegan recipe that retains the saved restriction while considering the temporary time preference."
   },
   {
     "id": "case-03",
-    "category": "failure_case",
-    "input": "",
-    "expected_behavior": "Gracefully rejects empty ingredients with a friendly error and does not call the model.",
-    "actual_result": "",
-    "status": "pending"
+    "category": "validation",
+    "ingredients": "",
+    "meal_preferences": "",
+    "saved_preferences": "",
+    "expected_success": false,
+    "expected_behavior": "Reject empty ingredients without contacting the model."
+  },
+  {
+    "id": "case-04",
+    "category": "conflict",
+    "ingredients": "chicken, tomatoes, rice",
+    "meal_preferences": "a quick dinner",
+    "saved_preferences": "vegetarian",
+    "expected_success": true,
+    "expected_behavior": "Do not use chicken; explain the saved vegetarian restriction and offer a compatible alternative, clearly labelling extra ingredients."
   }
 ]
