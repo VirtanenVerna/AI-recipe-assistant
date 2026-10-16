@@ -1,11 +1,25 @@
 """The AI Recipe Assistant layout; callbacks delegate to the service layer."""
 
 import gradio as gr
+import os
 
 from app.handlers import RecipeActions
 from src.services.ai_service import AIService
 
 EMPTY_RECIPE = "*Your next meal starts with what you already have.*"
+def resolve_model_name(service: AIService) -> str:
+    """Inspect the service instance or environment to find the active model name."""
+    for attr in ("model_name", "model", "model_id", "_model_name", "_model"):
+        if hasattr(service, attr) and getattr(service, attr):
+            return str(getattr(service, attr))
+
+    if hasattr(service, "client"):
+        client = service.client
+        for attr in ("model", "model_name"):
+            if hasattr(client, attr) and getattr(client, attr):
+                return str(getattr(client, attr))
+
+    return os.getenv("MODEL_NAME", "llama3.2")
 
 BRAND_CSS = """
 .gradio-container {
@@ -92,13 +106,15 @@ def build_theme() -> gr.themes.Soft:
 
 
 def build_ui(service: AIService | None = None) -> gr.Blocks:
-    actions = RecipeActions(service if service is not None else AIService())
+    active_service = service if service is not None else AIService()
+    actions = RecipeActions(active_service)
+
     with gr.Blocks(title="AI Recipe Assistant", analytics_enabled=False) as demo:
         with gr.Column(elem_classes="pp-shell"):
-            gr.HTML(
-                """
+            header_html = gr.HTML(
+                f"""
                 <div class="pp-hero">
-                    <h1 class="pp-title">AI Recipe Assistant</h1>
+                    <h1 class="pp-title">AI Recipe Assistant | {model_name}</h1>
                 </div>
                 """
             )
@@ -119,6 +135,7 @@ def build_ui(service: AIService | None = None) -> gr.Blocks:
                     )
                     with gr.Row():
                         submit_btn = gr.Button("Suggest a recipe", variant="primary")
+                        stop_btn = gr.Button("Stop", variant="secondary")
                         gr.ClearButton([ingredients, meal_wishes], value="Reset meal fields")
                     with gr.Accordion("Saved dietary preferences", open=True):
                         gr.Markdown(
@@ -180,5 +197,22 @@ def build_ui(service: AIService | None = None) -> gr.Blocks:
             ingredients.submit(
                 actions.generate, inputs=[ingredients, meal_wishes], outputs=output,
                 api_name=False, **event_options,
+            )
+            # Store generation events so they can be canceled via stop_btn
+            submit_event = submit_btn.click(
+                actions.generate, inputs=[ingredients, meal_wishes], outputs=output,
+                api_name="recipe", **event_options,
+            )
+            submit_input_event = ingredients.submit(
+                actions.generate, inputs=[ingredients, meal_wishes], outputs=output,
+                api_name=False, **event_options,
+            )
+            
+            # Stop button cancels both submit click and enter key submissions
+            stop_btn.click(
+                fn=None,
+                inputs=None,
+                outputs=None,
+                cancels=[submit_event, submit_input_event]
             )
     return demo
