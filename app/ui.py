@@ -6,6 +6,30 @@ from app.handlers import RecipeActions
 from src.services.ai_service import AIService
 
 EMPTY_RECIPE = "*Your next meal starts with what you already have.*"
+THEME_STORAGE_KEY = "ai-recipe-assistant-theme"
+
+THEME_INIT_JS = f"""
+() => {{
+    const theme = localStorage.getItem("{THEME_STORAGE_KEY}") || "light";
+    const dark = theme === "dark";
+    document.body.classList.toggle("dark", dark);
+    document.querySelector("gradio-app")?.classList.toggle("dark", dark);
+    const button = document.querySelector("#theme-toggle");
+    if (button) button.textContent = dark ? "Light theme" : "Dark theme";
+}}
+"""
+
+THEME_TOGGLE_JS = f"""
+() => {{
+    const dark = !document.body.classList.contains("dark");
+    document.body.classList.toggle("dark", dark);
+    document.querySelector("gradio-app")?.classList.toggle("dark", dark);
+    localStorage.setItem("{THEME_STORAGE_KEY}", dark ? "dark" : "light");
+    const button = document.querySelector("#theme-toggle");
+    if (button) button.textContent = dark ? "Light theme" : "Dark theme";
+    return null;
+}}
+"""
 
 BRAND_CSS = """
 .gradio-container {
@@ -20,23 +44,26 @@ BRAND_CSS = """
     background: radial-gradient(circle at 15% 5%, #fffdf5 0, var(--pp-page) 42%, #edf4ec 100%);
 }
 .dark .gradio-container, .gradio-container.dark {
-    --pp-ink: #edf5ef;
-    --pp-muted: #bfcec4;
-    --pp-surface: #202e25;
-    --pp-page: #142019;
-    --pp-border: #799c86;
-    --pp-accent: #a5dfb9;
-    --pp-soft: #2a4433;
+    --pp-ink: #f5fbf6;
+    --pp-muted: #c4d7c8;
+    --pp-surface: #203128;
+    --pp-page: #101b14;
+    --pp-border: #7fa68a;
+    --pp-accent: #9ee4b0;
+    --pp-soft: #2d4937;
 }
 .pp-shell { max-width: 1180px; margin: 0 auto; }
 .pp-hero {
-    display: flex; flex-wrap: wrap; align-items: center; gap: 20px;
-    padding: 24px; border: 1px solid rgba(47, 107, 79, .18); border-radius: 24px;
-    background: rgba(255, 255, 255, .72); color: var(--pp-ink);
-    box-shadow: 0 18px 50px rgba(47, 107, 79, .12);
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px;
+    padding: 24px; border: 1px solid var(--pp-border); border-radius: 24px;
+    background: var(--pp-surface); color: var(--pp-ink);
+    box-shadow: 0 18px 50px rgb(0 0 0 / 12%);
 }
 .pp-title { margin: 0; color: var(--pp-ink); font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.15; overflow-wrap: anywhere; }
-.pp-card { padding: 14px !important; border: 1px solid rgba(47, 107, 79, .15) !important; border-radius: 20px; background: rgba(255, 255, 255, .7) !important; min-width: 0; }
+.pp-title-block { margin: 0 !important; }
+.pp-title-block h1 { margin: 0; color: var(--pp-ink); }
+#theme-toggle button { min-width: 8.5rem; }
+.pp-card { padding: 14px !important; border: 1px solid var(--pp-border) !important; border-radius: 20px; background: var(--pp-surface) !important; min-width: 0; }
 .pp-shell .prose, .pp-shell .prose :where(p, li, strong, em, h1, h2, h3, h4) {
     color: var(--pp-ink);
 }
@@ -45,7 +72,8 @@ BRAND_CSS = """
 .pp-status p { color: var(--pp-ink); margin: 0; overflow-wrap: anywhere; }
 .pp-shell textarea, .pp-shell input {
     font-size: 1rem !important; line-height: 1.55 !important;
-    color: var(--pp-ink) !important; background: #fffdf7 !important;
+    color: var(--pp-ink) !important; background: var(--pp-surface) !important;
+    -webkit-text-fill-color: var(--pp-ink) !important;
     caret-color: var(--pp-accent); border: 1px solid var(--pp-border) !important;
 }
 .pp-shell textarea::placeholder, .pp-shell input::placeholder {
@@ -74,20 +102,20 @@ def build_theme() -> gr.themes.Soft:
         font=["Segoe UI", "Arial", "sans-serif"],
         font_mono=["Consolas", "monospace"],
     ).set(
-        body_background_fill="#fbf8f0", body_background_fill_dark="#142019",
-        body_text_color="#17221d", body_text_color_dark="#edf5ef",
-        body_text_color_subdued="#465d50", body_text_color_subdued_dark="#bfcec4",
-        block_background_fill="#ffffff", block_background_fill_dark="#202e25",
-        block_label_background_fill="#e2eddf", block_label_background_fill_dark="#2a4433",
-        block_label_text_color="#17221d", block_label_text_color_dark="#edf5ef",
-        block_title_text_color="#17221d", block_title_text_color_dark="#edf5ef",
-        input_background_fill="#ffffff", input_background_fill_dark="#202e25",
-        input_placeholder_color="#465d50", input_placeholder_color_dark="#bfcec4",
-        button_primary_background_fill="#245b40", button_primary_background_fill_dark="#245b40",
-        button_primary_background_fill_hover="#19452f", button_primary_background_fill_hover_dark="#19452f",
+        body_background_fill="#fbf8f0", body_background_fill_dark="#101b14",
+        body_text_color="#17221d", body_text_color_dark="#f5fbf6",
+        body_text_color_subdued="#607067", body_text_color_subdued_dark="#c4d7c8",
+        block_background_fill="#fffdf7", block_background_fill_dark="#203128",
+        block_label_background_fill="#e2eddf", block_label_background_fill_dark="#2d4937",
+        block_label_text_color="#17221d", block_label_text_color_dark="#f5fbf6",
+        block_title_text_color="#17221d", block_title_text_color_dark="#f5fbf6",
+        input_background_fill="#fffdf7", input_background_fill_dark="#203128",
+        input_placeholder_color="#607067", input_placeholder_color_dark="#c4d7c8",
+        button_primary_background_fill="#2f6b4f", button_primary_background_fill_dark="#397a56",
+        button_primary_background_fill_hover="#245b40", button_primary_background_fill_hover_dark="#4a9469",
         button_primary_text_color="#ffffff", button_primary_text_color_dark="#ffffff",
-        button_secondary_background_fill="#e2eddf", button_secondary_background_fill_dark="#2a4433",
-        button_secondary_text_color="#17221d", button_secondary_text_color_dark="#edf5ef",
+        button_secondary_background_fill="#e2eddf", button_secondary_background_fill_dark="#2d4937",
+        button_secondary_text_color="#17221d", button_secondary_text_color_dark="#f5fbf6",
     )
 
 
@@ -97,13 +125,12 @@ def build_ui(service: AIService | None = None) -> gr.Blocks:
 
     with gr.Blocks(title="AI Recipe Assistant", analytics_enabled=False) as demo:
         with gr.Column(elem_classes="pp-shell"):
-            gr.HTML(
-                """
-                <div class="pp-hero">
-                    <h1 class="pp-title">AI Recipe Assistant</h1>
-                </div>
-                """
-            )
+            with gr.Row(elem_classes="pp-hero"):
+                gr.Markdown("# AI Recipe Assistant", elem_classes="pp-title-block")
+                theme_toggle = gr.Button(
+                    "Dark theme", variant="secondary", elem_id="theme-toggle",
+                    min_width=136,
+                )
             gr.Markdown("**What's for dinner?** Start with your ingredients, then add wishes for this meal.")
             with gr.Row():
                 with gr.Column(elem_classes="pp-card", min_width=280):
@@ -166,6 +193,8 @@ def build_ui(service: AIService | None = None) -> gr.Blocks:
                 actions.load_saved, outputs=[saved_editor, memory_status],
                 api_name="load_preferences", **event_options,
             )
+            demo.load(None, js=THEME_INIT_JS, queue=False)
+            theme_toggle.click(None, js=THEME_TOGGLE_JS, queue=False)
             save_btn.click(
                 actions.save_saved, inputs=saved_editor,
                 outputs=[saved_editor, memory_status], api_name="save_preferences",

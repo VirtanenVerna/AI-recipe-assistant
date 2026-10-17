@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock
 
 from app.handlers import RecipeActions
-from app.ui import build_ui
+from app.ui import build_theme, build_ui
 from src.capabilities.memory import MemoryStore, MemoryWriteError
 from src.services.ai_service import AIService
 
@@ -59,3 +59,10 @@ def test_recipe_generation_is_bound_once_for_each_user_action():
     demo = build_ui(AIService(MagicMock(), MemoryStore()))
     recipe_callbacks = [fn for fn in demo.fns.values() if fn.api_name == "recipe"]
     assert len(recipe_callbacks) == 1
+
+
+def test_dark_theme_uses_high_contrast_text_and_surfaces():
+    theme = build_theme()
+    assert theme.body_text_color_dark == "#f5fbf6"
+    assert theme.body_background_fill_dark == "#101b14"
+    assert theme.input_background_fill_dark == "#203128"
