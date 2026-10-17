@@ -45,6 +45,7 @@ def test_load_prefills_and_escapes_saved_preferences():
 
 def test_forget_event_updates_editor_and_not_recipe_output():
     demo = build_ui(AIService(MagicMock(), MemoryStore()))
+    assert demo.title == "AI Recipe Assistant"
     assert demo.analytics_enabled is False
     callback = next(fn for fn in demo.fns.values() if fn.api_name == "forget_preferences")
     assert callback.inputs[0] is callback.outputs[0]
@@ -52,3 +53,9 @@ def test_forget_event_updates_editor_and_not_recipe_output():
     editor, status = callback.fn("vegetarian")
     assert editor == ""
     assert "cleared" in status
+
+
+def test_recipe_generation_is_bound_once_for_each_user_action():
+    demo = build_ui(AIService(MagicMock(), MemoryStore()))
+    recipe_callbacks = [fn for fn in demo.fns.values() if fn.api_name == "recipe"]
+    assert len(recipe_callbacks) == 1

@@ -1,37 +1,23 @@
 """The AI Recipe Assistant layout; callbacks delegate to the service layer."""
 
 import gradio as gr
-import os
 
 from app.handlers import RecipeActions
 from src.services.ai_service import AIService
 
 EMPTY_RECIPE = "*Your next meal starts with what you already have.*"
-def resolve_model_name(service: AIService) -> str:
-    """Inspect the service instance or environment to find the active model name."""
-    for attr in ("model_name", "model", "model_id", "_model_name", "_model"):
-        if hasattr(service, attr) and getattr(service, attr):
-            return str(getattr(service, attr))
-
-    if hasattr(service, "client"):
-        client = service.client
-        for attr in ("model", "model_name"):
-            if hasattr(client, attr) and getattr(client, attr):
-                return str(getattr(client, attr))
-
-    return os.getenv("MODEL_NAME", "llama3.2")
 
 BRAND_CSS = """
 .gradio-container {
     --pp-ink: #17221d;
-    --pp-muted: #465d50;
-    --pp-surface: #ffffff;
+    --pp-muted: #607067;
+    --pp-surface: #fffdf7;
     --pp-page: #fbf8f0;
-    --pp-border: #839b8b;
-    --pp-accent: #245b40;
+    --pp-border: #aab9ae;
+    --pp-accent: #2f6b4f;
     --pp-soft: #e2eddf;
     color: var(--pp-ink);
-    background: var(--pp-page);
+    background: radial-gradient(circle at 15% 5%, #fffdf5 0, var(--pp-page) 42%, #edf4ec 100%);
 }
 .dark .gradio-container, .gradio-container.dark {
     --pp-ink: #edf5ef;
@@ -45,12 +31,12 @@ BRAND_CSS = """
 .pp-shell { max-width: 1180px; margin: 0 auto; }
 .pp-hero {
     display: flex; flex-wrap: wrap; align-items: center; gap: 20px;
-    padding: 24px; border: 1px solid var(--pp-border); border-radius: 24px;
-    background: var(--pp-surface); color: var(--pp-ink);
-    box-shadow: 0 12px 32px rgb(0 0 0 / 8%);
+    padding: 24px; border: 1px solid rgba(47, 107, 79, .18); border-radius: 24px;
+    background: rgba(255, 255, 255, .72); color: var(--pp-ink);
+    box-shadow: 0 18px 50px rgba(47, 107, 79, .12);
 }
 .pp-title { margin: 0; color: var(--pp-ink); font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.15; overflow-wrap: anywhere; }
-.pp-card { padding: 14px !important; border: 1px solid var(--pp-border) !important; border-radius: 20px; background: var(--pp-surface) !important; min-width: 0; }
+.pp-card { padding: 14px !important; border: 1px solid rgba(47, 107, 79, .15) !important; border-radius: 20px; background: rgba(255, 255, 255, .7) !important; min-width: 0; }
 .pp-shell .prose, .pp-shell .prose :where(p, li, strong, em, h1, h2, h3, h4) {
     color: var(--pp-ink);
 }
@@ -59,7 +45,7 @@ BRAND_CSS = """
 .pp-status p { color: var(--pp-ink); margin: 0; overflow-wrap: anywhere; }
 .pp-shell textarea, .pp-shell input {
     font-size: 1rem !important; line-height: 1.55 !important;
-    color: var(--pp-ink) !important; background: var(--pp-surface) !important;
+    color: var(--pp-ink) !important; background: #fffdf7 !important;
     caret-color: var(--pp-accent); border: 1px solid var(--pp-border) !important;
 }
 .pp-shell textarea::placeholder, .pp-shell input::placeholder {
@@ -111,10 +97,10 @@ def build_ui(service: AIService | None = None) -> gr.Blocks:
 
     with gr.Blocks(title="AI Recipe Assistant", analytics_enabled=False) as demo:
         with gr.Column(elem_classes="pp-shell"):
-            header_html = gr.HTML(
-                f"""
+            gr.HTML(
+                """
                 <div class="pp-hero">
-                    <h1 class="pp-title">AI Recipe Assistant | {model_name}</h1>
+                    <h1 class="pp-title">AI Recipe Assistant</h1>
                 </div>
                 """
             )
@@ -189,14 +175,6 @@ def build_ui(service: AIService | None = None) -> gr.Blocks:
                 actions.forget_saved, inputs=saved_editor,
                 outputs=[saved_editor, memory_status], api_name="forget_preferences",
                 **event_options,
-            )
-            submit_btn.click(
-                actions.generate, inputs=[ingredients, meal_wishes], outputs=output,
-                api_name="recipe", **event_options,
-            )
-            ingredients.submit(
-                actions.generate, inputs=[ingredients, meal_wishes], outputs=output,
-                api_name=False, **event_options,
             )
             # Store generation events so they can be canceled via stop_btn
             submit_event = submit_btn.click(
