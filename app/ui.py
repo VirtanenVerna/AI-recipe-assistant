@@ -147,6 +147,21 @@ def build_ui(service: AIService | None = None) -> gr.Blocks:
                         elem_classes="pp-field",
                     )
                     with gr.Row():
+                        servings = gr.Dropdown(
+                            choices=[1, 2, 3, 4, 5, 6],
+                            value=2,
+                            label="Number of servings",)
+                        cooking_time = gr.Dropdown(
+                            choices=[
+                                "No preference",
+                                "15 minutes",
+                                "30 minutes",
+                                "45 minutes",
+                                "60 minutes",
+                            ],
+                            value="No preference",
+                            label="Maximum cooking time",)
+                    with gr.Row():
                         submit_btn = gr.Button("Suggest a recipe", variant="primary")
                         stop_btn = gr.Button("Stop", variant="secondary")
                         gr.ClearButton([ingredients, meal_wishes], value="Reset meal fields")
@@ -207,11 +222,11 @@ def build_ui(service: AIService | None = None) -> gr.Blocks:
             )
             # Store generation events so they can be canceled via stop_btn
             submit_event = submit_btn.click(
-                actions.generate, inputs=[ingredients, meal_wishes], outputs=output,
+                actions.generate, inputs=[ingredients, meal_wishes, servings, cooking_time], outputs=output,
                 api_name="recipe", **event_options,
             )
             submit_input_event = ingredients.submit(
-                actions.generate, inputs=[ingredients, meal_wishes], outputs=output,
+                actions.generate, inputs=[ingredients, meal_wishes, servings, cooking_time], outputs=output,
                 api_name=False, **event_options,
             )
             

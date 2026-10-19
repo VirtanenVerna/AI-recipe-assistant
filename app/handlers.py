@@ -33,5 +33,21 @@ class RecipeActions:
         # not make the user think their existing restrictions have disappeared.
         return ("" if result.success else draft), _status(result.content)
 
-    def generate(self, ingredients: str, meal_wishes: str) -> str:
-        return self.service.process_message(ingredients, meal_wishes).content
+    def generate(
+        self,
+        ingredients: str,
+        meal_wishes: str,
+        servings: int,
+        cooking_time: str,
+    ) -> str:
+        wishes = [meal_wishes.strip() if meal_wishes else "",
+            f"Number of servings: {servings}",]
+
+        if cooking_time != "No preference":
+            wishes.append(f"Maximum cooking time: {cooking_time}")
+
+        combined_wishes = "\n".join(
+            wish for wish in wishes if wish)
+
+        return self.service.process_message(
+            ingredients, combined_wishes).content
