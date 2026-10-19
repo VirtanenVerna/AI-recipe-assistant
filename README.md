@@ -10,7 +10,7 @@ Development of AI Applications -kurssin ryhmäprojekti: resepti-ideoita kotona j
 
 ## Mitä sovellus tekee?
 
-Käyttäjä antaa raaka-aineet ja tämän aterian toiveet. Sovellus pyytää Ollamalta yhden reseptin, jossa on nimi, määrät ja valmistusohjeet. Erillinen paikallinen muisti säilyttää käyttäjän itse tallentamat ruokavaliot.
+Käyttäjä antaa raaka-aineet ja tämän aterian toiveet. Käyttäjä voi valita annosmäärä henkilöiden mukaan (1-6) ja valmistusajan (15, 30, 45 tai 60min). Sovellus välittää tiedot Ollama kielimallille, joka ehdottaa reseptiä. Erillinen paikallinen muisti säilyttää käyttäjän itse tallentamat ruokavaliot.
 
 Tavoitteena on helpottaa arkista ruoan ideointia ja olemassa olevien raaka-aineiden hyödyntämistä. Tämä on yhden käyttäjän paikallinen demo, ei allergia- tai ravitsemuspalvelu.
 
@@ -18,10 +18,12 @@ Tavoitteena on helpottaa arkista ruoan ideointia ja olemassa olevien raaka-ainei
 
 1. **What is in your kitchen?**: raaka-aineet, enintään 4000 merkkiä.
 2. **Wishes for this meal**: esimerkiksi annosmäärä tai aikatoive, enintään 1000 merkkiä. Ei tallennu.
-3. **Saved dietary preferences**: pysyvät ruokavaliot. Muokkaaminen ei vielä muuta muistia; paina **Save preferences**.
-4. **Suggest a recipe** yhdistää aterian tiedot tallennettuihin ruokavalioihin. Mallia ohjeistetaan pitämään tallennettuja rajoitteita ensisijaisina.
-5. **Reset meal fields** tyhjentää aterian kentät, ei muistia.
-6. **Forget preferences** poistaa tallennuksen ja tyhjentää sen editorin. Epäonnistuneesta poistosta kerrotaan, eikä editoria tyhjennetä virheellisesti.
+3. **Number of servings**: Käyttäjä valitsee haluamansa annosmäärän 1-6.
+4.  **Maximum cooking time**: Käyttäjällä on mahdollisuus valita valmistusaika, oletuksena on "No preference", jolloin ei ole aikarajoitusta.
+5. **Saved dietary preferences**: pysyvät ruokavaliot. Muokkaaminen ei vielä muuta muistia; paina **Save preferences**.
+6. **Suggest a recipe** yhdistää aterian tiedot tallennettuihin ruokavalioihin. Mallia ohjeistetaan pitämään tallennettuja rajoitteita ensisijaisina.
+7. **Reset meal fields** tyhjentää aterian kentät, ei muistia.
+8. **Forget preferences** poistaa tallennuksen ja tyhjentää sen editorin. Epäonnistuneesta poistosta kerrotaan, eikä editoria tyhjennetä virheellisesti.
 
 Tallennettu ruokavalio näkyy lomakkeessa myös uudelleen avattaessa. Reseptipyyntö ei koskaan kirjoita muistia. Jos muistia ei saada luettua, reseptiä ei generoida: rajoitteita ei ohiteta hiljaa.
 
@@ -144,3 +146,4 @@ Ainoa toteutettu lisäkyvykkyys on persistentti ruokavaliomuisti.
 - Verkkokutsussa on asetettava aikakatkaisu (oletus 120 s lukuoperaatiolle, yhdistäminen enintään 10 s). Tämä ei ole mallin palvelinpuolinen laskentabudjetti tai sekunnintarkka kokonaiskeston takuu.
 - Inferenssi kulkee oletuksena paikalliseen Ollamaan. Gradio-telemetria on poistettu käytöstä ja UI käyttää järjestelmäfontteja. Mallien/pakettien lataaminen tarvitsee verkkoa; ulkoisen mallipalvelimen valitseminen muuttaa tietovirtaa.
 - Kehitykset jaetaan `development`-haarassa. Niitä ei yhdistetä tai pushata `main`-haaraan automaattisesti.
+- 
