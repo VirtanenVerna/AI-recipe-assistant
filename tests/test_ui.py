@@ -16,7 +16,7 @@ def test_forget_clears_editor_and_next_generation_does_not_restore_memory():
     editor, status = actions.forget_saved(editor)
     assert editor == ""
     assert "cleared" in status
-    actions.generate("chicken", "")
+    actions.generate("chicken", "", 2, "No preference")
     assert not service.memory_store.path.exists()
     assert "vegetarian" not in client.generate.call_args.args[0]
 
