@@ -32,18 +32,17 @@ Tallennettu ruokavalio näkyy lomakkeessa myös uudelleen avattaessa. Reseptipyy
 Tarvitset Gitin, Python 3.12:n (esimerkiksi Minicondan kautta) sekä [Ollaman](https://ollama.com/download/windows).
 Asennukset ja mallit ovat konekohtaisia, eivät Git-repossa.
 
-### 1. Nouda kehityshaara
+### 1. Nouda uusimmat muutokset main-haarasta
 
 Olemassa olevassa kloonissa:
 
 ~~~powershell
 git fetch origin
-git switch development
-git pull --ff-only
+git switch main
+git pull --ff-only origin main
 ~~~
 
-Jos haara ei vielä ole paikallinen: `git switch --track origin/development`.
-Tee nämä puhtaassa työpuussa tai tallenna ensin omat keskeneräiset muutoksesi.
+Tee nämä puhtaassa työpuussa tai tallenna ensin omat keskeneräiset muutoksesi. Tarkista lopuksi tila komennolla `git status -sb`.
 
 ### 2. Python-ympäristö
 
@@ -145,5 +144,5 @@ Ainoa toteutettu lisäkyvykkyys on persistentti ruokavaliomuisti.
 - Mallikutsu käyttää enintään 4096 tokenin kontekstia ja 1024 tokenin tulostusta. Katkaistu tuloste palautetaan virheenä.
 - Verkkokutsussa on asetettava aikakatkaisu (oletus 120 s lukuoperaatiolle, yhdistäminen enintään 10 s). Tämä ei ole mallin palvelinpuolinen laskentabudjetti tai sekunnintarkka kokonaiskeston takuu.
 - Inferenssi kulkee oletuksena paikalliseen Ollamaan. Gradio-telemetria on poistettu käytöstä ja UI käyttää järjestelmäfontteja. Mallien/pakettien lataaminen tarvitsee verkkoa; ulkoisen mallipalvelimen valitseminen muuttaa tietovirtaa.
-- Kehitykset jaetaan `development`-haarassa. Niitä ei yhdistetä tai pushata `main`-haaraan automaattisesti.
+- Projektin yhteinen lopullinen versio on `main`-haarassa.
 - 
