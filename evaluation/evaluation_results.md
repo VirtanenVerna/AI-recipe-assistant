@@ -36,7 +36,7 @@ The initial recipe-quality review was 1 pass, 1 partial and 1 fail across the th
 
 ## Software regression and browser checks
 
-The automated suite contains 72 passing cases on the tested Python 3.12 and 3.13 environments. Tests cover preference isolation, explicit save/forget, corrupt files, failed atomic replacement, network/error handling, response shapes, input limits and UI callback wiring.
+The automated suite contains 129 passing tests on the tested Python 3.12 environment. Tests cover preference isolation, explicit save/forget, corrupt files, failed atomic replacement, network/error handling, response shapes, input limits and UI callback wiring.
 
 Browser checks on the updated local app confirmed:
 
