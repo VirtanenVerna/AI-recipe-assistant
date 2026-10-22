@@ -1,7 +1,7 @@
 # AI Recipe Assistant
 
 Development of AI Applications -kurssin ryhmäprojekti: resepti-ideoita kotona jo olevista raaka-aineista, paikallisella kielimallilla.
-
+Loppuesitys: https://drive.google.com/file/d/1U9DZmk_VYXhpiLh6f7LZsLcnfcsCDE8J/view?usp=sharing
 ## Team members
 
 - Member 1 Heidi Johansson heidi.johansson@student.hamk.fi
